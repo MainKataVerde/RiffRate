@@ -1,4 +1,4 @@
-./scripts/env
+./scripts/.env
 # Logs
 logs
 *.log

@@ -36,9 +36,10 @@ const Login = () => {
             email: "",
             password: "",
           });
+          localStorage.setItem("userId", data.usuario.id);
           setTimeout(() => {
             setMensaje("");
-            navigate(`/welcome/${data.usuario.id}`);
+            navigate(`/`);
             setLoading(false);
           }, 1500);
         })

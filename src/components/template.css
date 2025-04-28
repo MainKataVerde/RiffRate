@@ -109,3 +109,102 @@ form {
   flex-direction: column;
   justify-content: center;
 }
+
+.header {
+  width: 100%;
+  min-width: 300px;
+  height: 15%;
+  background-color: #00215e; /* Changed from red to main blue */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerLogo {
+  width: 30%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.logo {
+  width: 40%;
+  height: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+}
+
+.cuerpo {
+  width: 100%;
+  min-width: 300px;
+  height: 85%;
+  background-color: purple;
+}
+
+.welcomeContainer {
+  width: 100%;
+  height: 100%;
+}
+
+.profilePhoto {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  padding: 5px;
+}
+
+.profile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20%;
+  height: 100%;
+}
+
+.profileLogginButton {
+  width: 50%;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 10px 30px;
+  background-color: #00215e;
+  width: 50%;
+  justify-content: center;
+}
+
+.menu a {
+  color: #00379c;
+  font-weight: bold;
+  font-size: 20px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.menu a:hover {
+  color: #ffcc00;
+}
+
+.menu .search-icon {
+  background: #00379c;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu .search-icon svg {
+  fill: #fff;
+  width: 20px;
+  height: 20px;
+}

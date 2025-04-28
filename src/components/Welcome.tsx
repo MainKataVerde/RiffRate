@@ -1,24 +1,37 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./template.css";
-import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import Header from "./header";
 
 const Welcome = () => {
-  const [name, setName] = useState("");
+  // Obtén el id del usuario logueado desde localStorage
+  const loggedUserId = localStorage.getItem("userId");
 
-  const navegate = useNavigate();
-
-  //esto nos devuleve la ultima parte de la url es decir la id
-  const { id } = useParams();
+  // ¿Es el perfil del usuario logueado?
 
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/user/${id}`)
-      .then(({ data }) => setName(data.nombre))
+      .get(`http://localhost:4000/user/${loggedUserId}`)
+      .then(({ data }) => {
+        //setPhoto(data.photo);
+      })
       .catch((error) => console.error(error));
-  }, [id]); //esto hace que se ejecute cada vez que se cambia la url
+  }, [loggedUserId]);
 
-  return <div>Welcome {name}</div>;
+  return (
+    <>
+      <div className="welcomeContainer">
+        <Header loggedUserId={loggedUserId} />
+        <div className="cuerpo">
+          <div className="cuerpoArriba">
+            {loggedUserId ? <p>Estas loggeado</p> : <p>No estas loggeado</p>}
+          </div>
+          <div className="cuerpoAbajo"></div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default Welcome;

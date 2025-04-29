@@ -3,23 +3,23 @@ const Album = require("../model/albumes");
 const getAlbumByName = async (req, res) => {
   const { albumName } = req.params;
 
-  //verificamos que la id sea correcta
-  if (albumName.length > 0) {
-    await mongoose.connect("mongodb://localhost:27017/musicapp");
-    console.log("MongoDB connected");
+  if (!albumName || albumName.length === 0) {
+    return res.status(400).json({ mensaje: "No existe el album" });
+  }
 
-    Album.findById(albumName).then((album) => {
-      if (!album) {
-        return res.json({
-          mesnaje: "No encontramos ningun usuario con esa id",
-        });
-      } else {
-        const { _id, name, __v, ...resto } = album._doc;
-        res.json(resto);
-      }
-    });
-  } else {
-    res.json({ mensjae: "No existe el album" });
+  try {
+    // Busca el álbum por nombre
+    const album = await Album.findOne({ name: albumName });
+    if (!album) {
+      return res
+        .status(404)
+        .json({ mensaje: "No encontramos ningún álbum con ese nombre" });
+    }
+    res.json(album);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ mensaje: "Error al buscar el álbum", error: error.message });
   }
 };
 

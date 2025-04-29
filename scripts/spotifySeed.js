@@ -1,9 +1,8 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 const mongoose = require("mongoose");
 const axios = require("axios");
 const fs = require("fs");
-const path = require("path");
-
 // Importa tus modelos
 const Album = require("../model/albumes");
 const Artist = require("../model/artist");
@@ -119,6 +118,7 @@ async function fetchArtistAndAlbums(artistName, token) {
           duration: Math.round(totalDuration / 1000 / 60),
           links: [album.external_urls.spotify],
           reviews: [],
+          popularity: 0, // <-- Añadido
           createdAt: new Date(),
         });
 

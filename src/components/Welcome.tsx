@@ -4,14 +4,19 @@ import "./template.css";
 import axios from "axios";
 import Header from "./header";
 
+interface Album {
+  _id: string;
+  name: string;
+  popularity: number;
+  cover: string;
+}
+
 const Welcome = () => {
+  const [albums, setAlbums] = useState<Album[]>([]);
   const [nombre, setNombre] = useState("");
-  // Obtén el id del usuario logueado desde localStorage
   const loggedUserId = localStorage.getItem("userId");
 
   const navigate = useNavigate();
-
-  // ¿Es el perfil del usuario logueado?
 
   useEffect(() => {
     axios
@@ -20,6 +25,11 @@ const Welcome = () => {
         setNombre(data.nombre);
       })
       .catch((error) => console.error(error));
+
+    fetch("http://localhost:4000/popular")
+      .then((res) => res.json())
+      .then((data) => setAlbums(data))
+      .catch((err) => console.error("Error al cargar álbumes populares:", err));
   }, [loggedUserId]);
 
   return (
@@ -42,7 +52,25 @@ const Welcome = () => {
               )}
             </div>
           </div>
-          <div className="cuerpoAbajo"></div>
+          <div className="cuerpoAbajo">
+            <div className="populares-header">
+              <h2>Populares</h2>
+              <span className="arrow">{">"}</span>
+            </div>
+            <hr className="populares-divider" />
+            <div className="albumes">
+              <div className="albumContent">
+                {albums.slice(0, 10).map((album) => (
+                  <div className="album" key={album._id}>
+                    <img
+                      src={album.cover || "https://via.placeholder.com/220"}
+                      alt={album.name}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

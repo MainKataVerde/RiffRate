@@ -128,7 +128,7 @@ form {
   justify-content: space-around;
   font-weight: bold;
   cursor: pointer;
-  padding: 10px;
+  padding: 5px;
 }
 
 .logo {
@@ -145,6 +145,18 @@ form {
   min-width: 300px;
   height: 85%;
   background-color: purple;
+}
+
+.cuerpoArriba {
+  width: 100%;
+  height: 20%;
+  display: flex;
+  justify-content: center;
+  padding-left: auto;
+  align-items: center;
+}
+
+.cuerpoArribaTexto {
 }
 
 .welcomeContainer {
@@ -190,21 +202,21 @@ form {
 }
 
 .menu a:hover {
-  color: #ffcc00;
+  color: #2c4e80;
 }
 
 .menu .search-icon {
   background: #00379c;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .menu .search-icon svg {
-  fill: #fff;
-  width: 20px;
-  height: 20px;
+  fill: #00215e;
+  width: 25px;
+  height: 25px;
 }

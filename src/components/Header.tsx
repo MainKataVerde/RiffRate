@@ -9,7 +9,6 @@ type HeaderProps = {
 
 const Header = ({ loggedUserId }: HeaderProps) => {
   const [photo, setPhoto] = useState("");
-  const [nombre, setNombre] = useState("");
   const navegate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +17,6 @@ const Header = ({ loggedUserId }: HeaderProps) => {
         .get(`http://localhost:4000/user/${loggedUserId}`)
         .then(({ data }) => {
           setPhoto(data.photo);
-          setNombre(data.nombre);
         })
         .catch((error) => console.error(error));
     }
@@ -37,23 +35,14 @@ const Header = ({ loggedUserId }: HeaderProps) => {
         <a href="/noticias">Noticias</a>
         <span className="search-icon">
           {/* Puedes usar un SVG de lupa aquí */}
-          <svg viewBox="0 0 24 24">
-            <circle
-              cx="11"
-              cy="11"
-              r="8"
-              stroke="white"
-              strokeWidth="2"
-              fill="none"
-            />
-            <line
-              x1="21"
-              y1="21"
-              x2="16.65"
-              y2="16.65"
-              stroke="white"
-              strokeWidth="2"
-            />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#00215E"
+          >
+            <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
           </svg>
         </span>
       </div>

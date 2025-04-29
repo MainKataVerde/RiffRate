@@ -38,7 +38,7 @@ const Header = ({ loggedUserId }: HeaderProps) => {
     <div className="header">
       <div className="headerLogo">
         <div className="logo">
-          <img onClick={() => navegate("/")} src="/public/logo_letras.png" />
+          <img onClick={() => navegate("/")} src="/public/logo.png" />
         </div>
       </div>
       <div className="menu">

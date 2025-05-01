@@ -14,7 +14,11 @@ interface Album {
   rating: number;
 }
 
-const FilteredAlbums = () => {
+interface FilteredAlbumsProps {
+  friendsOnly?: boolean;
+}
+
+const FilteredAlbums = ({ friendsOnly = false }: FilteredAlbumsProps) => {
   const { filter } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,6 +29,7 @@ const FilteredAlbums = () => {
   const [genre, setGenre] = useState<string>("");
   const [rating, setRating] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("popularity");
+  const [showFriendsOnly, setShowFriendsOnly] = useState<boolean>(friendsOnly);
 
   // Estado para los álbumes
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -65,6 +70,8 @@ const FilteredAlbums = () => {
     if (params.get("decade")) setDecade(params.get("decade") || "");
     if (params.get("genre")) setGenre(params.get("genre") || "");
     if (params.get("rating")) setRating(params.get("rating") || "");
+    if (params.get("friends") === "true") setShowFriendsOnly(true);
+    else if (friendsOnly) setShowFriendsOnly(true);
 
     // Mapear el parámetro de ruta al sortBy correcto
     if (filter) {
@@ -85,12 +92,12 @@ const FilteredAlbums = () => {
           setSortBy("popularity");
       }
     }
-  }, [location.search, filter]);
+  }, [location.search, filter, friendsOnly]);
 
   // Reset a la primera página cuando cambian los filtros
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, decade, genre, rating]);
+  }, [filter, decade, genre, rating, showFriendsOnly]);
 
   // Cargar álbumes cuando cambien los filtros
   useEffect(() => {
@@ -104,6 +111,12 @@ const FilteredAlbums = () => {
         if (decade) params.append("decade", decade);
         if (genre) params.append("genre", genre);
         if (rating) params.append("rating", rating);
+
+        // Nuevos parámetros para el filtro de amigos
+        if (showFriendsOnly) {
+          params.append("friends", "true");
+          if (loggedUserId) params.append("userId", loggedUserId);
+        }
 
         // Convertir el "filter" frontend al "sortBy" del backend
         let backendSortBy;
@@ -143,7 +156,7 @@ const FilteredAlbums = () => {
     };
 
     fetchAlbums();
-  }, [filter, decade, genre, rating]);
+  }, [filter, decade, genre, rating, showFriendsOnly, loggedUserId]);
 
   // Cambiar el ordenamiento
   const handleSortChange = (value: string) => {
@@ -154,8 +167,23 @@ const FilteredAlbums = () => {
     if (decade) params.append("decade", decade);
     if (genre) params.append("genre", genre);
     if (rating) params.append("rating", rating);
+    if (showFriendsOnly) params.append("friends", "true");
 
     navigate(`/albums/${value}?${params.toString()}`);
+  };
+
+  // Manejar cambio en filtro de amigos
+  const handleFriendsFilterChange = (checked: boolean) => {
+    setShowFriendsOnly(checked);
+
+    // Actualizar query params para el nuevo filtro
+    const params = new URLSearchParams();
+    if (decade) params.append("decade", decade);
+    if (genre) params.append("genre", genre);
+    if (rating) params.append("rating", rating);
+    if (checked) params.append("friends", "true");
+
+    navigate(`/albums/${filter || "popularity"}?${params.toString()}`);
   };
 
   // Resetear filtros
@@ -164,6 +192,7 @@ const FilteredAlbums = () => {
     setGenre("");
     setRating("");
     setSortBy("popularity");
+    setShowFriendsOnly(false);
     setCurrentPage(1);
     navigate("/albums/popularity");
   };
@@ -266,7 +295,11 @@ const FilteredAlbums = () => {
       <div className="cuerpo">
         <div className="cuerpoArriba">
           <div className="cuerpoArribaTexto">
-            <h1>Explorar Álbumes</h1>
+            <h1>
+              {showFriendsOnly
+                ? "Álbumes populares entre tus amigos"
+                : "Explorar Álbumes"}
+            </h1>
           </div>
         </div>
         <div className="cuerpoAbajo">
@@ -283,6 +316,7 @@ const FilteredAlbums = () => {
                     if (e.target.value) params.append("decade", e.target.value);
                     if (genre) params.append("genre", genre);
                     if (rating) params.append("rating", rating);
+                    if (showFriendsOnly) params.append("friends", "true");
                     navigate(
                       `/albums/${filter || "popularity"}?${params.toString()}`
                     );
@@ -309,6 +343,7 @@ const FilteredAlbums = () => {
                     if (decade) params.append("decade", decade);
                     if (e.target.value) params.append("genre", e.target.value);
                     if (rating) params.append("rating", rating);
+                    if (showFriendsOnly) params.append("friends", "true");
                     navigate(
                       `/albums/${filter || "popularity"}?${params.toString()}`
                     );
@@ -335,6 +370,7 @@ const FilteredAlbums = () => {
                     if (decade) params.append("decade", decade);
                     if (genre) params.append("genre", genre);
                     if (e.target.value) params.append("rating", e.target.value);
+                    if (showFriendsOnly) params.append("friends", "true");
                     navigate(
                       `/albums/${filter || "popularity"}?${params.toString()}`
                     );
@@ -364,6 +400,22 @@ const FilteredAlbums = () => {
               </select>
             </div>
 
+            {/* Nuevo filtro de amigos */}
+            {loggedUserId && (
+              <div className="filter-group friends-filter">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={showFriendsOnly}
+                    onChange={(e) =>
+                      handleFriendsFilterChange(e.target.checked)
+                    }
+                    className="friends-checkbox"
+                  />
+                  <span>Solo álbumes de amigos</span>
+                </label>
+              </div>
+            )}
             <button onClick={handleReset} className="reset-button">
               Resetear filtros
             </button>
@@ -376,9 +428,23 @@ const FilteredAlbums = () => {
               ) : error ? (
                 <p className="error">{error}</p>
               ) : albums.length === 0 ? (
-                <p className="no-results">
-                  No se encontraron álbumes con estos filtros
-                </p>
+                <div className="no-friends-albums-container">
+                  {showFriendsOnly ? (
+                    <>
+                      <p>
+                        No se encontraron álbumes favoritos entre tus amigos.
+                      </p>
+                      <p>
+                        Puede que no tengas amigos aún o que no hayan marcado
+                        favoritos.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="no-results">
+                      No se encontraron álbumes con estos filtros
+                    </p>
+                  )}
+                </div>
               ) : (
                 <div className="albums-grid">
                   {currentAlbums.map((album) => (

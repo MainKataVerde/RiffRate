@@ -13,23 +13,38 @@ interface Album {
 
 const Welcome = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [friendsAlbums, setFriendsAlbums] = useState<Album[]>([]);
   const [nombre, setNombre] = useState("");
   const loggedUserId = localStorage.getItem("userId");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:4000/user/${loggedUserId}`)
-      .then(({ data }) => {
-        setNombre(data.nombre);
-      })
-      .catch((error) => console.error(error));
+    // Obtener datos del usuario
+    if (loggedUserId) {
+      axios
+        .get(`http://localhost:4000/user/${loggedUserId}`)
+        .then(({ data }) => {
+          setNombre(data.nombre);
+        })
+        .catch((error) => console.error(error));
+    }
 
+    // Obtener álbumes populares generales
     fetch("http://localhost:4000/popular")
       .then((res) => res.json())
       .then((data) => setAlbums(data))
       .catch((err) => console.error("Error al cargar álbumes populares:", err));
+
+    // Obtener álbumes populares entre amigos si hay un usuario logueado
+    if (loggedUserId) {
+      fetch(`http://localhost:4000/popular/friends/${loggedUserId}`)
+        .then((res) => res.json())
+        .then((data) => setFriendsAlbums(data))
+        .catch((err) =>
+          console.error("Error al cargar álbumes populares entre amigos:", err)
+        );
+    }
   }, [loggedUserId]);
 
   return (
@@ -57,7 +72,7 @@ const Welcome = () => {
               <h2>Populares</h2>
               <span
                 className="arrow"
-                onClick={() => navigate(`/albums/popular`)}
+                onClick={() => navigate(`/albums/popularity`)}
               >
                 {">"}
               </span>
@@ -76,16 +91,44 @@ const Welcome = () => {
                 ))}
               </div>
             </div>
-            <div className="populares-header">
-              <h2>Populares entre tus amigos</h2>
-              <span
-                className="arrow"
-                onClick={() => navigate(`/albums/popularity`)}
-              >
-                {">"}
-              </span>
-            </div>
-            <hr className="populares-divider" />
+
+            {/* Sección de álbumes populares entre amigos */}
+            {loggedUserId && (
+              <>
+                <div className="populares-header">
+                  <h2>Populares entre tus amigos</h2>
+                  <span
+                    className="arrow"
+                    onClick={() => navigate(`/albums/popularity?friends=true`)}
+                  >
+                    {">"}
+                  </span>
+                </div>
+                <hr className="populares-divider" />
+                <div className="albumes">
+                  <div className="albumContent">
+                    {friendsAlbums.length > 0 ? (
+                      friendsAlbums.slice(0, 10).map((album) => (
+                        <div className="album" key={album._id}>
+                          <img
+                            src={
+                              album.cover || "https://via.placeholder.com/220"
+                            }
+                            alt={album.name}
+                            onClick={() => navigate(`/album/${album._id}`)}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p className="no-friends-albums">
+                        Aún no hay álbumes populares entre tus amigos o no
+                        tienes amigos agregados.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -11,25 +11,36 @@ const searchAll = async (req, res) => {
 
   try {
     const usuarios = await Usuario.find({
-      name: { $regex: query, $options: "i" },
+      nombre: { $regex: query, $options: "i" },
     })
-      .select("_id name")
+      .select("_id nombre photo")
       .lean();
     const albums = await Album.find({ name: { $regex: query, $options: "i" } })
-      .select("_id name")
+      .select("_id name cover")
       .lean();
     const artistas = await Artist.find({
       name: { $regex: query, $options: "i" },
     })
-      .select("_id name")
+      .select("_id name photo")
       .lean();
 
     const results = [
-      ...usuarios.map((u) => ({ id: u._id, nombre: u.name, tipo: "usuario" })),
-      ...albums.map((a) => ({ id: a._id, nombre: a.name, tipo: "album" })),
+      ...usuarios.map((u) => ({
+        id: u._id,
+        nombre: u.nombre,
+        photo: u.photo,
+        tipo: "usuario",
+      })),
+      ...albums.map((a) => ({
+        id: a._id,
+        nombre: a.name,
+        photo: a.cover,
+        tipo: "album",
+      })),
       ...artistas.map((ar) => ({
         id: ar._id,
         nombre: ar.name,
+        photo: ar.photo,
         tipo: "artista",
       })),
     ];

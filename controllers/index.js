@@ -4,6 +4,7 @@ const getUserById = require("./getUserByid");
 const getAlbumByName = require("./getAlbumByName");
 const searchAll = require("./searchALL");
 const getPopularAlbums = require("./getPopularAlbums");
+const filterAlbums = require("./filterAlbums");
 
 module.exports = {
   getUserById,
@@ -12,4 +13,5 @@ module.exports = {
   getAlbumByName,
   searchAll,
   getPopularAlbums,
+  filterAlbums,
 };

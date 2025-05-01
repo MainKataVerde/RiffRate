@@ -15,6 +15,8 @@ const AlbumSchema = new Schema({
   links: { type: [String], required: false, default: [] },
   reviews: { type: [String], required: false, default: [] },
   popularity: { type: Number, required: false, default: 0 },
+  averageRating: { type: Number, required: false, default: 0 },
+  totalRatings: { type: Number, required: false, default: 0 },
   createdAt: { type: Date, required: true, default: Date.now },
 });
 

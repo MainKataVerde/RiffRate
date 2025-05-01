@@ -6,7 +6,7 @@ const ReviewSchema = new Schema({
   albumId: { type: String, required: true },
   rating: { type: Number, required: true, min: 0, max: 5 },
   text: { type: String, required: false, default: "" },
-  likes: { type: Number, required: false, default: 0 },
+  likes: { type: [String], required: false, default: [] },
   createdAt: { type: Date, required: true, default: Date.now },
 });
 

@@ -55,7 +55,12 @@ const Welcome = () => {
           <div className="cuerpoAbajo">
             <div className="populares-header">
               <h2>Populares</h2>
-              <span className="arrow">{">"}</span>
+              <span
+                className="arrow"
+                onClick={() => navigate(`/albums/popular`)}
+              >
+                {">"}
+              </span>
             </div>
             <hr className="populares-divider" />
             <div className="albumes">
@@ -65,11 +70,22 @@ const Welcome = () => {
                     <img
                       src={album.cover || "https://via.placeholder.com/220"}
                       alt={album.name}
+                      onClick={() => navigate(`/album/${album._id}`)}
                     />
                   </div>
                 ))}
               </div>
             </div>
+            <div className="populares-header">
+              <h2>Populares entre tus amigos</h2>
+              <span
+                className="arrow"
+                onClick={() => navigate(`/albums/popularity`)}
+              >
+                {">"}
+              </span>
+            </div>
+            <hr className="populares-divider" />
           </div>
         </div>
       </div>

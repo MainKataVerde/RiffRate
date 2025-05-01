@@ -17,7 +17,7 @@ const Header = ({ loggedUserId }: HeaderProps) => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && query.trim()) {
-      navegate(`/buscar/${encodeURIComponent(query)}`);
+      navegate(`/search/${encodeURIComponent(query)}`);
       setShowInput(false);
       setQuery("");
     }

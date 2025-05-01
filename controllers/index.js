@@ -5,6 +5,9 @@ const getAlbumByName = require("./getAlbumByName");
 const searchAll = require("./searchALL");
 const getPopularAlbums = require("./getPopularAlbums");
 const filterAlbums = require("./filterAlbums");
+const getFriendsPopularAlbums = require("./getFriendsPopularAlbums");
+const addFriend = require("./addFriend");
+const checkFriendship = require("./checkFriendship");
 
 module.exports = {
   getUserById,
@@ -14,4 +17,7 @@ module.exports = {
   searchAll,
   getPopularAlbums,
   filterAlbums,
+  getFriendsPopularAlbums,
+  addFriend,
+  checkFriendship,
 };

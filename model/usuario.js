@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const lists = require("./lists");
 const { Schema } = mongoose;
 
 const UsuarioSchema = new Schema({
@@ -15,6 +16,7 @@ const UsuarioSchema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
   friends: { type: [String], required: false, default: [] },
   favoriteAlbums: { type: [String], required: false, default: [] },
+  lists: { type: [String], required: false, default: [] },
   listenList: { type: [String], required: false, default: [] },
   reviews: { type: [String], required: false, default: [] },
 });

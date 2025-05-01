@@ -1,14 +1,49 @@
 const Album = require("../model/albumes");
+const Usuario = require("../model/usuario"); // Importa el modelo Usuario
 
 const filterAlbums = async (req, res) => {
   try {
     // Extraer parámetros de query
-    const { decade, genre, rating, sortBy } = req.query;
+    const { decade, genre, rating, sortBy, friends, userId } = req.query;
 
     // Construir filtro
     let filter = {};
 
-    // Filtro por década
+    // Filtro especial por amigos
+    if (friends === "true" && userId) {
+      // Obtener el usuario y sus amigos
+      const user = await Usuario.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ mensaje: "Usuario no encontrado" });
+      }
+
+      // Si no tiene amigos, devolver array vacío
+      if (!user.friends || user.friends.length === 0) {
+        return res.json([]);
+      }
+
+      // Obtener los amigos y sus álbumes favoritos
+      const friendUsers = await Usuario.find({ _id: { $in: user.friends } });
+
+      // Extraer todos los IDs de álbumes favoritos de los amigos
+      const friendsAlbumIds = [];
+      friendUsers.forEach((friend) => {
+        if (friend.favoriteAlbums && friend.favoriteAlbums.length > 0) {
+          friendsAlbumIds.push(...friend.favoriteAlbums);
+        }
+      });
+
+      // Si no hay álbumes favoritos, devolver array vacío
+      if (friendsAlbumIds.length === 0) {
+        return res.json([]);
+      }
+
+      // Filtrar por álbumes de amigos
+      filter._id = { $in: [...new Set(friendsAlbumIds)] }; // Elimina duplicados
+    }
+
+    // Resto de filtros normales
     if (decade) {
       const startYear = parseInt(decade);
       const endYear = startYear + 9;
@@ -18,12 +53,10 @@ const filterAlbums = async (req, res) => {
       };
     }
 
-    // Filtro por género (case insensitive)
     if (genre) {
       filter.genres = { $regex: new RegExp(genre, "i") };
     }
 
-    // Filtro por rating (nota)
     if (rating) {
       const minRating = parseFloat(rating);
       filter.averageRating = { $gte: minRating };
@@ -40,13 +73,13 @@ const filterAlbums = async (req, res) => {
         sort = { released: -1 };
         break;
       case "oldest":
-        sort = { released: 1 }; // Ordenar por fecha (más antiguo primero)
+        sort = { released: 1 };
         break;
       case "name":
-        sort = { name: 1 }; // Ordenar alfabéticamente A-Z
+        sort = { name: 1 };
         break;
       default:
-        sort = { popularity: -1 }; // Orden por defecto (popularidad)
+        sort = { popularity: -1 };
     }
 
     // Ejecutar consulta

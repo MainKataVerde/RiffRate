@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./template.css";
 import axios from "axios";
 
@@ -11,17 +11,8 @@ const Header = ({ loggedUserId }: HeaderProps) => {
   const [showInput, setShowInput] = useState(false);
   const [query, setQuery] = useState("");
   const [photo, setPhoto] = useState("");
-  const navegate = useNavigate();
-
-  const handleSearchClick = () => setShowInput((v) => !v);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && query.trim()) {
-      navegate(`/search/${encodeURIComponent(query)}`);
-      setShowInput(false);
-      setQuery("");
-    }
-  };
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (loggedUserId) {
@@ -34,56 +25,84 @@ const Header = ({ loggedUserId }: HeaderProps) => {
     }
   }, [loggedUserId]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && query.trim()) {
+      navigate(`/search/${encodeURIComponent(query)}`);
+      setQuery("");
+    }
+  };
+
   return (
-    <div className="header">
+    <header className="header">
+      {/* Logo */}
       <div className="headerLogo">
-        <div className="logo">
-          <img onClick={() => navegate("/")} src="/public/logo.png" />
-        </div>
+        <Link to="/" className="logo">
+          <img src="/logo.png" alt="RiffRate" />
+        </Link>
       </div>
-      <div className="menu">
-        <div className="search-container">
-          <span className="search-icon" onClick={handleSearchClick}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24px"
-              viewBox="0 -960 960 960"
-              width="24px"
-              fill="#00215E"
-            >
-              <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
-            </svg>
-          </span>
-          <input
-            className={`search-input ${showInput ? "show" : ""}`}
-            type="text"
-            placeholder="Buscar..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            style={{ transition: "width 0.3s, opacity 0.3s" }}
-          />
+
+      {/* Navegación */}
+      <nav className="menu">
+        <Link to="/" className={location.pathname === "/" ? "active" : ""}>
+          Inicio
+        </Link>
+        <Link
+          to="/albums/popularity"
+          className={location.pathname.includes("/albums") ? "active" : ""}
+        >
+          Explorar
+        </Link>
+      </nav>
+
+      {/* Barra de búsqueda */}
+      <div className="search-container">
+        <div className="search-icon">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
-        <a href="/albums">Albums</a>
-        <a href="/listas">Listas</a>
-        <a href="/amigos">Amigos</a>
-        <a href="/noticias">Noticias</a>
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Buscar álbumes, artistas..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
       </div>
+
+      {/* Perfil */}
       <div className="profile">
         {loggedUserId ? (
-          // Si hay usuario logueado, muestra la foto
-          <img className="profilePhoto" src={photo} alt="ERROR" />
+          <Link to={`/user/${loggedUserId}`}>
+            <img
+              className="profilePhoto"
+              src={photo || "https://via.placeholder.com/36?text=User"}
+              alt="Perfil"
+            />
+          </Link>
         ) : (
-          // Si no hay usuario logueado, muestra el botón
           <button
             className="profileLogginButton"
-            onClick={() => navegate("/login")}
+            onClick={() => navigate("/login")}
           >
             Iniciar sesión
           </button>
         )}
       </div>
-    </div>
+    </header>
   );
 };
 

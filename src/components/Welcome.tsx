@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./template.css";
+import "./css/welcome.css";
 import axios from "axios";
 import Header from "./Header";
 
@@ -11,10 +11,23 @@ interface Album {
   cover: string;
 }
 
+interface User {
+  _id: string;
+  nombre: string;
+  username: string;
+  photo: string;
+  reviewCount?: number;
+  listenCount?: number;
+}
+
 const Welcome = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [friendsAlbums, setFriendsAlbums] = useState<Album[]>([]);
+  const [topListeners, setTopListeners] = useState<User[]>([]);
+  const [topReviewers, setTopReviewers] = useState<User[]>([]);
   const [nombre, setNombre] = useState("");
+  const [hasFriends, setHasFriends] = useState(false);
+  const [showListeners, setShowListeners] = useState(true); // Nuevo estado para alternar
   const loggedUserId = localStorage.getItem("userId");
 
   const navigate = useNavigate();
@@ -36,16 +49,77 @@ const Welcome = () => {
       .then((data) => setAlbums(data))
       .catch((err) => console.error("Error al cargar álbumes populares:", err));
 
+    // Obtener usuarios top (listeners y reviewers)
+    fetch("http://localhost:4000/toplisteners")
+      .then((res) => res.json())
+      .then((data) => {
+        // Manejar la estructura de respuesta correcta
+        if (data.success && Array.isArray(data.results)) {
+          setTopListeners(data.results);
+        } else {
+          setTopListeners(data || []); // Fallback si la estructura es diferente
+        }
+      })
+      .catch((err) => console.error("Error al cargar top listeners:", err));
+
+    fetch("http://localhost:4000/topReviewers")
+      .then((res) => res.json())
+      .then((data) => {
+        // Manejar la estructura de respuesta correcta
+        if (data.success && Array.isArray(data.results)) {
+          setTopReviewers(data.results);
+        } else {
+          setTopReviewers(data || []); // Fallback si la estructura es diferente
+        }
+      })
+      .catch((err) => console.error("Error al cargar top reviewers:", err));
+
     // Obtener álbumes populares entre amigos si hay un usuario logueado
     if (loggedUserId) {
       fetch(`http://localhost:4000/popular/friends/${loggedUserId}`)
         .then((res) => res.json())
-        .then((data) => setFriendsAlbums(data))
-        .catch((err) =>
-          console.error("Error al cargar álbumes populares entre amigos:", err)
-        );
+        .then((data) => {
+          setFriendsAlbums(data);
+          setHasFriends(data.length > 0);
+        })
+        .catch((err) => {
+          console.error("Error al cargar álbumes populares entre amigos:", err);
+          setHasFriends(false);
+        });
     }
   }, [loggedUserId]);
+
+  // Función para renderizar usuarios
+  const renderUsers = (users: User[], type: "listeners" | "reviewers") => {
+    return (
+      <div className="albumContent user-content">
+        {users.slice(0, 10).map((user) => (
+          <div className="user-item" key={user._id}>
+            <div
+              className="user-avatar"
+              onClick={() => navigate(`/user/${user._id}`)}
+            >
+              <img
+                src={user.photo || "https://via.placeholder.com/110?text=User"}
+                alt={user.nombre}
+              />
+            </div>
+            <div className="user-info">
+              <p className="user-name">{user.nombre || user.username}</p>
+              <p className="user-stat">
+                {type === "listeners"
+                  ? `${user.listenCount || 0} escuchas`
+                  : `${user.reviewCount || 0} reviews`}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Determinar qué mostrar en la segunda sección
+  const shouldShowFriendsAlbums = loggedUserId && hasFriends;
 
   return (
     <>
@@ -78,6 +152,7 @@ const Welcome = () => {
               </span>
             </div>
             <hr className="populares-divider" />
+            {/* Sección de álbumes populares con scroll visible */}
             <div className="albumes">
               <div className="albumContent">
                 {albums.slice(0, 10).map((album) => (
@@ -92,43 +167,49 @@ const Welcome = () => {
               </div>
             </div>
 
-            {/* Sección de álbumes populares entre amigos */}
-            {loggedUserId && (
-              <>
-                <div className="populares-header">
-                  <h2>Populares entre tus amigos</h2>
-                  <span
-                    className="arrow"
-                    onClick={() => navigate(`/albums/popularity?friends=true`)}
-                  >
-                    {">"}
-                  </span>
+            {/* Segunda sección: amigos o top users */}
+            <div className="populares-header">
+              <h2>
+                {shouldShowFriendsAlbums
+                  ? "Populares entre tus amigos"
+                  : "Top usuarios que puedes seguir"}
+              </h2>
+
+              <span
+                className="arrow"
+                onClick={() =>
+                  shouldShowFriendsAlbums
+                    ? navigate(`/albums/popularity?friends=true`)
+                    : navigate(`/users/top`)
+                }
+              >
+                {">"}
+              </span>
+            </div>
+            <hr className="populares-divider" />
+
+            <div className="albumes">
+              {shouldShowFriendsAlbums ? (
+                // Mostrar álbumes de amigos
+                <div className="albumContent">
+                  {friendsAlbums.slice(0, 10).map((album) => (
+                    <div className="album" key={album._id}>
+                      <img
+                        src={album.cover || "https://via.placeholder.com/220"}
+                        alt={album.name}
+                        onClick={() => navigate(`/album/${album._id}`)}
+                      />
+                    </div>
+                  ))}
                 </div>
-                <hr className="populares-divider" />
-                <div className="albumes">
-                  <div className="albumContent">
-                    {friendsAlbums.length > 0 ? (
-                      friendsAlbums.slice(0, 10).map((album) => (
-                        <div className="album" key={album._id}>
-                          <img
-                            src={
-                              album.cover || "https://via.placeholder.com/220"
-                            }
-                            alt={album.name}
-                            onClick={() => navigate(`/album/${album._id}`)}
-                          />
-                        </div>
-                      ))
-                    ) : (
-                      <p className="no-friends-albums">
-                        Aún no hay álbumes populares entre tus amigos o no
-                        tienes amigos agregados.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
+              ) : (
+                // Mostrar usuarios top basado en la selección
+                renderUsers(
+                  showListeners ? topListeners : topReviewers,
+                  showListeners ? "listeners" : "reviewers"
+                )
+              )}
+            </div>
           </div>
         </div>
       </div>

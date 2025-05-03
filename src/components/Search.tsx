@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./template.css";
+import "./css/search.css";
 
 // Define la interfaz para los resultados de búsqueda
 interface SearchResult {

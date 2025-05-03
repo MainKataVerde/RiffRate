@@ -1,0 +1,120 @@
+.header {
+  width: 100%;
+  height: 100px !important; /* Ajusta esta altura según necesites y usa !important */
+  min-height: 100px !important;
+  background-color: #00215e;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerLogo {
+  width: 15%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.logo {
+  width: 44%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.logo img {
+  width: 100%;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  background-color: #00215e;
+  width: 75%;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.menu a {
+  color: #00379c;
+  font-weight: bold;
+  font-size: 15px;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding-right: 30px;
+}
+
+.menu a:hover {
+  color: #2c4e80;
+}
+
+.profilePhoto {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  padding: 5px;
+}
+
+.profile {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 10%;
+  height: 100%;
+  padding-right: 12px;
+}
+
+.profileLogginButton {
+  width: 50%;
+}
+
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.search-input {
+  width: 0;
+  opacity: 0;
+  padding: 0 10px;
+  border: none;
+  border-radius: 4px;
+  outline: none;
+  position: absolute;
+  right: 50px;
+  background: #fff;
+  color: #00379c;
+  font-size: 16px;
+  height: 36px;
+  pointer-events: none;
+}
+
+.search-input.show {
+  width: 300px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.menu .search-icon {
+  background: #00379c;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu .search-icon svg {
+  fill: #00215e;
+  width: 25px;
+  height: 25px;
+}

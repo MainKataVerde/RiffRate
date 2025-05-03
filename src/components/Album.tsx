@@ -1,6 +1,6 @@
 import Header from "./Header";
 import { useParams } from "react-router-dom";
-import "./template.css";
+import "./css/album.css";
 
 const Album = () => {
   const loggedUserId = localStorage.getItem("userId");

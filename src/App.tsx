@@ -6,6 +6,7 @@ import User from "./components/User.tsx";
 import Album from "./components/Album.tsx";
 import Search from "./components/Search.tsx";
 import FilteredAlbums from "./components/FilteredAlbums.tsx";
+import "./components/template.css";
 import "./App.css";
 
 const App = () => {

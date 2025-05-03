@@ -1,0 +1,46 @@
+.formContainer {
+  background-color: #00215e;
+  border-radius: 8px;
+  min-width: 300px;
+  width: 60%;
+  max-width: 500px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.toast {
+  transition-duration: 0.3s;
+  background-color: #00379c75;
+  border-radius: 8px;
+  width: 30%;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 15px;
+  padding: 10px;
+}
+
+form {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.inputContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ececec;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 80%;
+}

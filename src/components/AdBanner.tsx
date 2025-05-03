@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-
+import "./css/adBanner.css";
 // Add type declaration for window.adsbygoogle
 interface AdSenseObject {
   push(params: Record<string, unknown>): void;

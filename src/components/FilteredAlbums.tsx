@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import Header from "./Header";
-import "./template.css";
+import "./css/filterAlbums.css";
 
 interface Album {
   _id: string;

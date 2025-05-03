@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./template.css";
+import "./css/header.css";
 import axios from "axios";
 
 type HeaderProps = {
@@ -74,7 +74,7 @@ const Header = ({ loggedUserId }: HeaderProps) => {
           // Si hay usuario logueado, muestra la foto
           <img className="profilePhoto" src={photo} alt="ERROR" />
         ) : (
-          // Si no hay usuario logueado, muestra el botón
+          // tengo que poner otra cosa
           <button
             className="profileLogginButton"
             onClick={() => navegate("/login")}

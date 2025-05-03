@@ -18,6 +18,8 @@ app.get("/albums", controllers.filterAlbums);
 app.get("/popular/friends/:userId", controllers.getFriendsPopularAlbums);
 app.post("/friends/add", controllers.addFriend);
 app.get("/friends/check/:userId/:friendId", controllers.checkFriendship);
+app.get("/topListeners", controllers.getTopListeners);
+app.get("/topReviewers", controllers.getTopReviwers);
 
 app.listen(4000, () => {
   console.log("Server is running on port 4000");

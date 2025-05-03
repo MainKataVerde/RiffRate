@@ -8,6 +8,8 @@ const filterAlbums = require("./filterAlbums");
 const getFriendsPopularAlbums = require("./getFriendsPopularAlbums");
 const addFriend = require("./addFriend");
 const checkFriendship = require("./checkFriendship");
+const getTopListeners = require("./getTopListeners");
+const getTopReviwers = require("./getTopReviwers");
 
 module.exports = {
   getUserById,
@@ -20,4 +22,6 @@ module.exports = {
   getFriendsPopularAlbums,
   addFriend,
   checkFriendship,
+  getTopListeners,
+  getTopReviwers,
 };

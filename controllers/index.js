@@ -1,7 +1,6 @@
 const register = require("./register");
 const login = require("./login");
 const getUserById = require("./getUserByid");
-const getAlbumByName = require("./getAlbumByName");
 const searchAll = require("./searchALL");
 const getPopularAlbums = require("./getPopularAlbums");
 const filterAlbums = require("./filterAlbums");
@@ -10,12 +9,13 @@ const addFriend = require("./addFriend");
 const checkFriendship = require("./checkFriendship");
 const getTopListeners = require("./getTopListeners");
 const getTopReviwers = require("./getTopReviwers");
+const getAlbum = require("./getAlbum");
+const getArtistByName = require("./getArtistByName");
 
 module.exports = {
   getUserById,
   register,
   login,
-  getAlbumByName,
   searchAll,
   getPopularAlbums,
   filterAlbums,
@@ -24,4 +24,6 @@ module.exports = {
   checkFriendship,
   getTopListeners,
   getTopReviwers,
+  getAlbum,
+  getArtistByName,
 };

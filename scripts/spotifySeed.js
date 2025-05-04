@@ -22,6 +22,27 @@ async function fetchArtistBioFromLastFM(artistName) {
   }
 }
 
+// --- FUNCIÓN PARA OBTENER DESCRIPCIÓN DE ÁLBUM DE LAST.FM ---
+async function fetchAlbumInfoFromLastFM(artistName, albumName) {
+  const apiKey = process.env.LASTFM_API_KEY;
+  const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&artist=${encodeURIComponent(
+    artistName
+  )}&album=${encodeURIComponent(albumName)}&api_key=${apiKey}&format=json`;
+
+  try {
+    const res = await axios.get(url);
+    return {
+      description: res.data.album?.wiki?.summary || "",
+      tags: res.data.album?.tags?.tag?.map((tag) => tag.name) || [],
+    };
+  } catch (err) {
+    console.warn(
+      `No se pudo obtener info de Last.fm para álbum ${albumName} de ${artistName}`
+    );
+    return { description: "", tags: [] };
+  }
+}
+
 // Conexión a la base de datos
 const connectDB = async () => {
   await mongoose.connect(process.env.MONGODB_URI);
@@ -99,6 +120,12 @@ async function fetchArtistAndAlbums(artistName, token) {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
+        // --- OBTENER DESCRIPCIÓN DE ÁLBUM DE LAST.FM ---
+        const { description, tags } = await fetchAlbumInfoFromLastFM(
+          artist.name,
+          album.name
+        );
+
         const trackNames = albumTracksRes.data.tracks.items.map((t) => t.name);
         const totalDuration = albumTracksRes.data.tracks.items.reduce(
           (acc, t) => acc + t.duration_ms,
@@ -111,6 +138,7 @@ async function fetchArtistAndAlbums(artistName, token) {
           artist: artist.name,
           cover: album.images[0]?.url || "",
           genres: artist.genres,
+          description: description, // <-- Añadida la descripción del álbum
           tracks: trackNames,
           producers: album.artists.map((a) => a.name),
           label: album.label || "",
@@ -118,7 +146,7 @@ async function fetchArtistAndAlbums(artistName, token) {
           duration: Math.round(totalDuration / 1000 / 60),
           links: [album.external_urls.spotify],
           reviews: [],
-          popularity: 0, // <-- Añadido
+          popularity: 0,
           createdAt: new Date(),
         });
 

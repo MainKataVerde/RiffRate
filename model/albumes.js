@@ -11,6 +11,7 @@ const AlbumSchema = new Schema({
   producers: { type: [String], required: false, default: [] },
   label: { type: String, required: false, default: "" },
   released: { type: Date, required: false, default: Date.now },
+  description: { type: String, required: false, default: "" },
   duration: { type: Number, required: false, default: 0 },
   links: { type: [String], required: false, default: [] },
   reviews: { type: [String], required: false, default: [] },

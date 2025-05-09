@@ -11,6 +11,13 @@ const getTopListeners = require("./getTopListeners");
 const getTopReviwers = require("./getTopReviwers");
 const getAlbum = require("./getAlbum");
 const getArtistByName = require("./getArtistByName");
+const getUserReviewsList = require("./getUserReviewsList");
+const checkUserAlbumReview = require("./checkUserAlbumReview");
+const createUpdateReview = require("./createUpdateReview");
+const getAlbumReviewByUserId = require("./getAlbumReviewByUserId");
+const addToLikes = require("./addToLikes");
+const checkUserLiked = require("./checkUserLiked");
+const deleteFromLikes = require("./deleteFromLikes");
 
 module.exports = {
   getUserById,
@@ -26,4 +33,11 @@ module.exports = {
   getTopReviwers,
   getAlbum,
   getArtistByName,
+  getUserReviewsList,
+  checkUserAlbumReview,
+  createUpdateReview,
+  getAlbumReviewByUserId,
+  addToLikes,
+  checkUserLiked,
+  deleteFromLikes,
 };

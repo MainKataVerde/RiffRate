@@ -11,6 +11,9 @@ app.use(express.json());
 app.post("/friends/add", controllers.addFriend);
 app.post("/register", controllers.register);
 app.post("/login", controllers.login);
+app.post("/reviews/create", controllers.createUpdateReview);
+app.post("/likes/add", controllers.addToLikes);
+app.post("/likes/remove", controllers.deleteFromLikes);
 
 //gets
 app.get("/user/:userId", controllers.getUserById);
@@ -24,6 +27,16 @@ app.get("/topReviewers", controllers.getTopReviwers);
 app.get("/topReviewers", controllers.getTopReviwers);
 app.get("/album/:albumId", controllers.getAlbum);
 app.get("/artistName/:artistName", controllers.getArtistByName);
+app.get("/user/:userId/reviews", controllers.getUserReviewsList);
+app.get(
+  "/user/:userId/album/:albumId/hasReview",
+  controllers.checkUserAlbumReview
+);
+app.get(
+  "/user/:userId/album/:albumId/review",
+  controllers.getAlbumReviewByUserId
+);
+app.get("/user/:userId/album/:albumId/liked", controllers.checkUserLiked);
 
 app.listen(4000, () => {
   console.log("Server is running on port 4000");

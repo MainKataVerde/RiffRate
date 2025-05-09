@@ -17,6 +17,7 @@ const UsuarioSchema = new Schema({
   friends: { type: [String], required: false, default: [] },
   favoriteAlbums: { type: [String], required: false, default: [] },
   lists: { type: [String], required: false, default: [] },
+  likes: { type: [String], required: false, default: [] },
   listenList: { type: [String], required: false, default: [] },
   reviews: { type: [String], required: false, default: [] },
 });

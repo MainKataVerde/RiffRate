@@ -12,6 +12,8 @@ interface Review {
   rating: number;
   likes: number;
   date: string;
+  viewed: boolean;
+  favoriteTrack?: string; // Añadido campo para track favorito
 }
 
 // Interfaz para los datos del artista
@@ -58,19 +60,243 @@ const Album = () => {
   const [similarAlbums, setSimilarAlbums] = useState<AlbumData[]>([]);
   const [showAllTracks, setShowAllTracks] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [userRating, setUserRating] = useState<number>(0);
+  const [ratingSaving, setRatingSaving] = useState(false);
+  const [ratingError, setRatingError] = useState<string | null>(null);
+  const [albumViewed, setAlbumViewed] = useState<boolean>(false);
+  const [albumLiked, setAlbumLiked] = useState<boolean>(false);
+  const [favoriteTrack, setFavoriteTrack] = useState<string>(""); // Nuevo estado para track favorito
 
-  // Función para extraer el enlace de Last.fm de la descripción
-  const extractLastFmLink = (description: string): string | null => {
-    const match = description.match(
-      /<a\s+href="(https:\/\/www\.last\.fm\/music\/[^"]+)"[^>]*>([^<]+)<\/a>/i
-    );
-    return match ? match[1] : null;
-  };
+  // Estados para el diálogo de reseña
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewText, setReviewText] = useState("");
 
-  // Añadir esta función después de las otras funciones de navegación
+  // Función para navegar al productor
   const navigateToProducer = (producerName: string) => {
     // Navega a la búsqueda del productor
     navigate(`/search?q=${encodeURIComponent(producerName)}&type=artist`);
+  };
+
+  // Función para manejar el clic en las calificaciones
+  const handleRateClick = async (rating: number) => {
+    // Actualizar estado local inmediatamente para feedback visual
+    setUserRating(rating);
+    setRatingSaving(true);
+    setRatingError(null);
+
+    // Marcar como visto automáticamente cuando se puntúa
+    setAlbumViewed(true);
+
+    try {
+      // Verificar si el usuario está logueado
+      if (!loggedUserId) {
+        // Si no hay usuario logueado, redirigir al login
+        navigate("/login", {
+          state: {
+            returnUrl: `/album/${id}`,
+            message: "Inicia sesión para calificar álbumes",
+          },
+        });
+        return;
+      }
+
+      // Datos completos para el servidor
+      const reviewData = {
+        userId: loggedUserId,
+        albumId: id,
+        rating: rating,
+        viewed: true,
+        date: new Date().toISOString(), // Asegurarse que la fecha es válida
+        // Text vacío para evitar problemas de validación
+        text: "",
+      };
+
+      // Enviar la calificación al servidor
+      const response = await axios.post(
+        "http://localhost:4000/reviews/create",
+        reviewData
+      );
+
+      // Log detallado para depuración
+      console.log("Respuesta del servidor al guardar rating:", response.data);
+
+      if (response.data.success) {
+        console.log("Calificación guardada con éxito");
+
+        // Verificación opcional para confirmar el guardado
+        try {
+          const verifyRes = await axios.get(
+            `http://localhost:4000/user/${loggedUserId}/album/${id}/hasReview`
+          );
+          console.log("Verificación post-guardado:", verifyRes.data);
+        } catch (e) {
+          console.warn("Error en verificación:", e);
+        }
+      } else {
+        setRatingError("No se pudo guardar la calificación");
+      }
+    } catch (error) {
+      console.error("Error al guardar la calificación:", error);
+      setRatingError("Error al conectar con el servidor");
+    } finally {
+      setRatingSaving(false);
+    }
+  };
+
+  // Función para manejar el envío de la reseña
+  const handleSubmitReview = async () => {
+    setRatingSaving(true);
+
+    try {
+      if (!loggedUserId) {
+        navigate("/login", {
+          state: {
+            returnUrl: `/album/${id}`,
+            message: "Inicia sesión para hacer reseñas",
+          },
+        });
+        return;
+      }
+
+      const reviewData = {
+        userId: loggedUserId,
+        albumId: id,
+        text: reviewText,
+        rating: userRating || 0,
+        viewed: true,
+        date: new Date().toISOString(),
+        favoriteTracks: favoriteTrack || undefined, // Cambiado a favoriteTracks para que coincida con el backend
+      };
+
+      const response = await axios.post(
+        "http://localhost:4000/reviews/create",
+        reviewData
+      );
+
+      if (response.data.success) {
+        // Cerrar diálogo y limpiar texto
+        setReviewDialogOpen(false);
+        setReviewText("");
+        setFavoriteTrack(""); // Limpiar el track favorito
+
+        // Actualizar las reseñas populares si es necesario
+        try {
+          const popularRes = await axios.get(
+            `http://localhost:4000/album/${id}/reviews/popular`
+          );
+          if (popularRes.data.success) {
+            setPopularReviews(popularRes.data.reviews || []);
+          }
+        } catch (err) {
+          console.error("Error al recargar reseñas:", err);
+        }
+      } else {
+        alert("Error al publicar la reseña");
+      }
+    } catch (error) {
+      console.error("Error al enviar la reseña:", error);
+      alert("Error al conectar con el servidor");
+    } finally {
+      setRatingSaving(false);
+    }
+  };
+
+  // Función para manejar el clic en el botón "Visto"
+  const handleViewedClick = async () => {
+    // Cambiar el estado visual inmediatamente para feedback
+    setAlbumViewed(!albumViewed);
+
+    try {
+      // Verificar si el usuario está logueado
+      if (!loggedUserId) {
+        navigate("/login", {
+          state: {
+            returnUrl: `/album/${id}`,
+            message: "Inicia sesión para marcar álbumes como vistos",
+          },
+        });
+        // Revertir el cambio visual ya que no se pudo completar la acción
+        setAlbumViewed(albumViewed);
+        return;
+      }
+
+      // Datos completos para enviar al servidor
+      const reviewData = {
+        userId: loggedUserId,
+        albumId: id,
+        viewed: !albumViewed,
+        // Mantener la calificación actual si existe
+        rating: userRating || undefined,
+        // Incluir fecha para evitar problemas de validación
+        date: new Date().toISOString(),
+      };
+
+      // Enviar al servidor
+      const response = await axios.post(
+        "http://localhost:4000/reviews/create",
+        reviewData
+      );
+
+      // Log detallado para depuración
+      console.log("Respuesta al actualizar visto:", response.data);
+
+      if (!response.data.success) {
+        // Si hay error, revertir el cambio visual
+        setAlbumViewed(albumViewed);
+        console.error("Error al actualizar estado de visto");
+      }
+    } catch (error) {
+      // Revertir cambio en caso de error
+      setAlbumViewed(albumViewed);
+      console.error("Error al conectar con el servidor:", error);
+    }
+  };
+
+  // Función para manejar el like/unlike del álbum
+  const handleLikeClick = async () => {
+    // Cambiar el estado visual inmediatamente para feedback
+    setAlbumLiked(!albumLiked);
+
+    try {
+      // Verificar si el usuario está logueado
+      if (!loggedUserId) {
+        navigate("/login", {
+          state: {
+            returnUrl: `/album/${id}`,
+            message: "Inicia sesión para dar like a álbumes",
+          },
+        });
+        // Revertir el cambio visual
+        setAlbumLiked(albumLiked);
+        return;
+      }
+
+      // Datos para enviar al servidor
+      const likeData = {
+        userId: loggedUserId,
+        albumId: id,
+      };
+
+      // Determinar si estamos añadiendo o eliminando el like
+      const endpoint = albumLiked
+        ? "http://localhost:4000/likes/remove"
+        : "http://localhost:4000/likes/add";
+
+      // Enviar la solicitud al servidor
+      const response = await axios.post(endpoint, likeData);
+
+      console.log("Respuesta del servidor:", response.data);
+
+      if (!response.data.success) {
+        // Si hay error, revertir el cambio visual
+        setAlbumLiked(albumLiked);
+        console.error("Error al actualizar like:", response.data.message);
+      }
+    } catch (error) {
+      // Revertir cambio en caso de error
+      setAlbumLiked(albumLiked);
+      console.error("Error al conectar con el servidor:", error);
+    }
   };
 
   // Función para eliminar etiquetas HTML del texto
@@ -112,8 +338,90 @@ const Album = () => {
             await fetchArtistData(albumData.artist);
           }
 
-          // Intentar cargar reseñas de amigos si hay un usuario logueado
-          if (loggedUserId) {
+          // Si el usuario está logueado, verificar si ya ha hecho review y cargar su estado
+          if (loggedUserId && id) {
+            try {
+              // Primero verificamos si el usuario tiene una review usando el endpoint correspondiente
+              const hasReviewRes = await axios.get(
+                `http://localhost:4000/user/${loggedUserId}/album/${id}/hasReview`
+              );
+              console.log("Verificación de review:", hasReviewRes.data);
+
+              // Si el usuario tiene una review, cargar los detalles completos
+              if (hasReviewRes.data.success && hasReviewRes.data.hasReviewed) {
+                try {
+                  // CORRECCIÓN: Usar la ruta correcta según los endpoints disponibles
+                  const userReviewRes = await axios.get(
+                    `http://localhost:4000/user/${loggedUserId}/album/${id}/review`
+                  );
+                  console.log("Datos de review:", userReviewRes.data);
+
+                  if (userReviewRes.data.success) {
+                    let reviewData = null;
+
+                    // Manejo de diferentes formatos posibles de respuesta
+                    if (
+                      userReviewRes.data.reviews &&
+                      userReviewRes.data.reviews.length > 0
+                    ) {
+                      // Formato array - tomamos la primera review (más reciente)
+                      reviewData = userReviewRes.data.reviews[0];
+                    } else if (userReviewRes.data.review) {
+                      // Formato objeto único
+                      reviewData = userReviewRes.data.review;
+                    }
+
+                    if (reviewData) {
+                      // Establecer el rating y estado visto
+                      console.log("Review cargada:", reviewData);
+                      setUserRating(reviewData.rating || 0);
+
+                      // Si hay texto de reseña, guardarlo para posible edición
+                      if (reviewData.text) {
+                        setReviewText(reviewData.text);
+                      }
+
+                      // Cargar track favorito si existe
+                      if (reviewData.favoriteTrack) {
+                        setFavoriteTrack(reviewData.favoriteTrack);
+                      } else if (reviewData.favoriteTracks) {
+                        // Si el backend devuelve favoriteTracks en lugar de favoriteTrack
+                        setFavoriteTrack(reviewData.favoriteTracks);
+                      }
+
+                      // Un álbum se considera visto si está explícitamente marcado como tal,
+                      // si tiene rating o si tiene texto de review
+                      setAlbumViewed(
+                        reviewData.viewed ||
+                          reviewData.rating > 0 ||
+                          Boolean(reviewData.text)
+                      );
+                    }
+                  }
+                } catch (reviewErr) {
+                  console.error("Error al cargar datos de review:", reviewErr);
+                }
+              }
+            } catch (err) {
+              console.error(
+                "Error al verificar si el usuario ha reseñado el álbum:",
+                err
+              );
+            }
+
+            // Verificar si el álbum está en likes del usuario
+            try {
+              const userLikeRes = await axios.get(
+                `http://localhost:4000/user/${loggedUserId}/album/${id}/liked`
+              );
+
+              if (userLikeRes.data.success) {
+                setAlbumLiked(userLikeRes.data.isLiked);
+              }
+            } catch (likeErr) {
+              console.error("Error al verificar like del álbum:", likeErr);
+            }
+
             try {
               const friendsRes = await axios.get(
                 `http://localhost:4000/album/${id}/reviews/friends/${loggedUserId}`
@@ -196,7 +504,7 @@ const Album = () => {
       const date = new Date(dateString);
       return date.getFullYear();
     } catch (e) {
-      return "Año desconocido";
+      return "Año desconocido" + e;
     }
   };
 
@@ -245,6 +553,7 @@ const Album = () => {
       {/* Sección 2: Contenido principal del álbum */}
       <div className="main-album-section">
         <div className="album-content">
+          {/* Columna izquierda - Cover, streaming y tracks */}
           <div className="album-left">
             <div className="album-cover">
               <img
@@ -332,7 +641,17 @@ const Album = () => {
                       ? album.tracks
                       : album.tracks.slice(0, 4)
                     ).map((track, index) => (
-                      <div key={index} className="track-item" title={track}>
+                      <div
+                        key={index}
+                        className={`track-item ${
+                          track === favoriteTrack ? "favorite-track" : ""
+                        }`}
+                        title={
+                          track === favoriteTrack
+                            ? `${track} (Track favorito)`
+                            : track
+                        }
+                      >
                         {track}
                       </div>
                     ))}
@@ -342,7 +661,7 @@ const Album = () => {
                         className="tracks-more"
                         onClick={() => setShowAllTracks(true)}
                       >
-                        More...
+                        Mas
                       </div>
                     )}
                     {/* Botón "Less" cuando se están mostrando todos los tracks y hay más de 4 */}
@@ -351,7 +670,7 @@ const Album = () => {
                         className="tracks-more"
                         onClick={() => setShowAllTracks(false)}
                       >
-                        Less...
+                        Menos
                       </div>
                     )}
                   </>
@@ -362,7 +681,8 @@ const Album = () => {
             </div>
           </div>
 
-          <div className="album-right">
+          {/* Columna central - Información principal, reseñas, etc. */}
+          <div className="album-center">
             <div className="album-header">
               <div className="album-header-top">
                 <div className="album-artist">
@@ -421,14 +741,14 @@ const Album = () => {
                           className="description-more"
                           onClick={() => setShowFullDescription(true)}
                         >
-                          More...
+                          Mas
                         </span>
                       ) : (
                         <span
                           className="description-more"
                           onClick={() => setShowFullDescription(false)}
                         >
-                          Less...
+                          Menos
                         </span>
                       )}
                     </>
@@ -436,9 +756,6 @@ const Album = () => {
                 </p>
               </div>
             </div>
-            {/* Estrellas <div className="album-rating">
-              {renderStars(Math.round(album.averageRating || 0))}
-            </div>*/}
 
             {hasItems(album.producers) && (
               <div className="album-producers">
@@ -597,8 +914,229 @@ const Album = () => {
               </div>
             )}
           </div>
+
+          {/* Panel de interacción (columna derecha) */}
+          <div className="album-interaction-side">
+            <div className="album-interaction-panel">
+              <div className="interaction-row">
+                <div
+                  className={`interaction-option ${
+                    albumViewed ? "active" : ""
+                  }`}
+                  onClick={handleViewedClick}
+                >
+                  <div className="interaction-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 -960 960 960"
+                      width="24px"
+                      fill={albumViewed ? "#4a90e2" : "#e3e3e3"}
+                    >
+                      {albumViewed ? (
+                        <path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z" />
+                      ) : (
+                        <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
+                      )}
+                    </svg>
+                  </div>
+                  <span>Visto</span>
+                </div>
+
+                {/* Nuevo botón Like */}
+                <div
+                  className={`interaction-option ${albumLiked ? "active" : ""}`}
+                  onClick={handleLikeClick}
+                >
+                  <div className="interaction-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 0 24 24"
+                      width="24px"
+                      fill={albumLiked ? "#ff4081" : "#e3e3e3"}
+                    >
+                      {albumLiked ? (
+                        // Corazón lleno para álbum ya likeado
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                      ) : (
+                        // Corazón vacío para álbum no likeado
+                        <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z" />
+                      )}
+                    </svg>
+                  </div>
+                  <span style={{ color: albumLiked ? "#ff4081" : "" }}>
+                    Like
+                  </span>
+                </div>
+
+                <div className="interaction-option">
+                  <div className="interaction-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 -960 960 960"
+                      width="24px"
+                      fill="#e3e3e3"
+                    >
+                      <path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z" />
+                    </svg>
+                  </div>
+                  <span>Listenlist</span>
+                </div>
+              </div>
+
+              <div className="interaction-divider"></div>
+
+              <div className="interaction-rate">
+                <span>
+                  Rate
+                  {ratingError && (
+                    <small className="rating-error"> {ratingError}</small>
+                  )}
+                </span>
+                <div className="rate-icons">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <div
+                      key={star}
+                      className={`rate-icon ${
+                        star <= userRating ? "rated" : ""
+                      }`}
+                      onClick={() => handleRateClick(star)}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="36px"
+                        viewBox="0 -960 960 960"
+                        width="36px"
+                        fill={star <= userRating ? "#ffd700" : "#e3e3e3"}
+                      >
+                        <path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z" />
+                      </svg>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="interaction-divider"></div>
+
+              <div
+                className="interaction-button"
+                onClick={() => setReviewDialogOpen(true)}
+              >
+                Hacer Review
+              </div>
+
+              <div className="interaction-divider"></div>
+
+              <div className="interaction-button">Añadir a una lista</div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Diálogo de reseña con el nuevo selector de track favorito */}
+      {reviewDialogOpen && (
+        <div
+          className="review-dialog-overlay"
+          onClick={() => setReviewDialogOpen(false)}
+        >
+          <div
+            className="review-dialog-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="review-dialog-header">
+              <h2>Escribe tu reseña</h2>
+              <button
+                className="close-dialog-btn"
+                onClick={() => setReviewDialogOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="review-dialog-album-info">
+              <img
+                src={
+                  album?.cover || "https://via.placeholder.com/60?text=Álbum"
+                }
+                alt={album?.name || "Álbum"}
+                className="review-album-cover"
+              />
+              <div className="review-album-details">
+                <h3>{album?.name}</h3>
+                <p>{album?.artist}</p>
+              </div>
+            </div>
+
+            <div className="review-rating-section">
+              <p>Tu calificación:</p>
+              <div className="review-rating-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <div
+                    key={star}
+                    className={`rate-icon ${star <= userRating ? "rated" : ""}`}
+                    onClick={() => handleRateClick(star)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="36px"
+                      viewBox="0 -960 960 960"
+                      width="36px"
+                      fill={star <= userRating ? "#ffd700" : "#e3e3e3"}
+                    >
+                      <path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z" />
+                    </svg>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Nueva sección para el track favorito */}
+            <div className="favorite-track-section">
+              <p>Track favorito</p>
+              <select
+                className="favorite-track-select"
+                value={favoriteTrack}
+                onChange={(e) => setFavoriteTrack(e.target.value)}
+              >
+                <option value="">Selecciona tu track favorito</option>
+                {hasItems(album.tracks) &&
+                  album.tracks.map((track, index) => (
+                    <option key={index} value={track}>
+                      {track}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className="review-text-section">
+              <textarea
+                placeholder="Escribe tu reseña aquí..."
+                onChange={(e) => setReviewText(e.target.value)}
+                rows={6}
+                className="review-textarea"
+              />
+            </div>
+
+            <div className="review-dialog-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setReviewDialogOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="submit-btn"
+                onClick={handleSubmitReview}
+                disabled={ratingSaving}
+              >
+                {ratingSaving ? "Enviando..." : "Publicar reseña"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

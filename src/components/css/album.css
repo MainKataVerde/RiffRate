@@ -12,18 +12,26 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 70px 20px 20px 20px;
 }
 
 .album-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: 300px 1fr 250px;
   gap: 30px;
+}
+
+.album-center {
+  grid-column: 2;
+}
+
+.album-interaction-side {
+  grid-column: 3;
 }
 
 /* Columna izquierda */
 .album-left {
-  width: 300px;
-  min-width: 300px;
+  grid-column: 1;
 }
 
 .album-cover {
@@ -167,6 +175,11 @@
   background-color: #003aa7;
 }
 
+.track-item.favorite-track {
+  color: #4caf50; /* Color verde */
+  font-weight: 500;
+}
+
 /* Columna derecha */
 .album-right {
   flex-grow: 1;
@@ -224,6 +237,7 @@
   flex-direction: row;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 4px 10px rgba(0, 30, 100, 0.4);
 }
 
 .album-duration {
@@ -256,7 +270,7 @@
 
 .album-year p {
   font-size: 20px;
-  color: #00379c;
+  color: #00215e;
   font-weight: 700;
 }
 
@@ -286,6 +300,227 @@
 
 .album-rating {
   margin: 20px 0;
+}
+
+/* Panel de interacción */
+.album-interaction-panel {
+  background-color: #002366;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  position: sticky;
+  top: 20px; /* Mantiene el panel visible mientras scrolleas */
+}
+
+.interaction-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.interaction-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s, transform 0.2s;
+  width: 80px;
+  text-align: center;
+}
+
+.interaction-option:active {
+  transform: translateY(0);
+}
+
+.interaction-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  margin-bottom: 4px;
+}
+
+.interaction-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.interaction-option span {
+  font-size: 14px;
+  margin-top: 4px;
+  color: #e3e3e3;
+}
+
+.interaction-option.active span {
+  color: #4a90e2;
+}
+
+.interaction-option.active span[style*="color: #ff4081"] {
+  color: #ff4081 !important;
+}
+
+@keyframes heart-beat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.interaction-option.active .interaction-icon svg[fill="#ff4081"] {
+  animation: heart-beat 0.4s ease-out;
+  filter: drop-shadow(0 0 3px rgba(255, 64, 129, 0.3));
+}
+
+.interaction-option:hover .interaction-icon svg {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+.interaction-divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+}
+
+.interaction-rate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.interaction-rate > span {
+  margin-bottom: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.interaction-rate span {
+  font-size: 16px;
+  color: #4a90e2;
+  margin-bottom: 10px;
+}
+
+.interaction-option.active .interaction-icon {
+  filter: drop-shadow(0 0 2px rgba(74, 144, 226, 0.6));
+}
+
+.rate-icons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rate-icon {
+  position: relative;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  width: 36px;
+  height: 36px;
+}
+
+.rate-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rate-icon svg:hover {
+  fill: yellow;
+}
+
+.rate-icon svg:hover {
+  transform: scale(1.15);
+}
+
+/* Para hacer el efecto de "hover" que muestra todas las estrellas hasta la actual */
+.rate-icons:hover .rate-icon svg {
+  fill: #ffd700;
+}
+
+.rate-icon.rated svg {
+  filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.7));
+}
+
+.rate-icon.rated {
+  transform: scale(1.1);
+}
+
+.rate-icon.rated svg {
+  filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.7));
+}
+
+.rate-icons .rate-icon:hover ~ .rate-icon svg {
+  fill: #e3e3e3;
+}
+
+.interaction-button {
+  width: 100%;
+  text-align: center;
+  padding: 12px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.current-rating {
+  font-size: 14px;
+  color: #ffd700;
+  font-weight: 500;
+}
+
+/* Indicadores de estado */
+.saving-indicator {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 5px;
+  animation: pulse 1.5s infinite;
+}
+
+.rating-error {
+  font-size: 12px;
+  color: #ff6b6b;
+  margin-left: 5px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.interaction-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.interaction-debug {
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.interaction-debug:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .star {
@@ -386,6 +621,47 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Estilos para la sección de track favorito */
+.favorite-track-section {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.favorite-track-select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 16px;
+  appearance: menulist-button;
+  cursor: pointer;
+  text-align: center; /* Centra el texto en el select */
+}
+
+.favorite-track-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favorite-track-select option {
+  background-color: #091326;
+  color: #fff;
+  border: none; /* Quita los bordes de las opciones */
+  text-align: center; /* Centra el texto de las opciones */
+}
+
+/* Estos estilos ayudan a quitar bordes internos en algunos navegadores */
+.favorite-track-select option:hover,
+.favorite-track-select option:checked {
+  box-shadow: none;
+  border: none;
+}
+
 /* Albumes similares */
 .similar-albums-container {
   display: flex;
@@ -479,6 +755,192 @@
   cursor: pointer;
 }
 
+/* Estilos para el diálogo de reseña */
+.review-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Centrado de texto y ajustes del modal */
+.review-dialog-content {
+  background-color: #091326;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  position: relative;
+  animation: dialog-slide-in 0.2s ease-out;
+  text-align: center; /* Centrar todo el texto por defecto */
+}
+
+@keyframes dialog-slide-in {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Ajuste del encabezado y botón de cierre */
+.review-dialog-header {
+  position: relative; /* Para posicionamiento del botón */
+  display: block; /* Cambiado de flex a block para centrado */
+  margin-bottom: 30px; /* Más espacio abajo del título */
+}
+
+.review-dialog-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.5rem;
+  text-align: center; /* Centrar el título */
+}
+
+/* Botón de cierre simplificado */
+.close-dialog-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  margin-top: 5px;
+}
+
+.close-dialog-btn:hover {
+  color: #aaa; /* Mismo color que el estado normal */
+  background: none;
+}
+
+.review-dialog-album-info {
+  display: flex;
+  justify-content: center; /* Centrar horizontalmente */
+  margin: 0 auto 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  max-width: 90%;
+}
+
+.review-album-cover {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.review-album-details {
+  margin-left: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.review-album-details h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+}
+
+.review-album-details p {
+  margin: 5px 0 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.review-rating-section {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.review-rating-stars {
+  display: flex;
+  justify-content: center; /* Centrar horizontalmente */
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.review-text-section {
+  margin-bottom: 20px;
+}
+
+.review-textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 16px;
+  resize: vertical;
+  text-align: left; /* Centrar el texto ingresado */
+}
+
+.review-textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.review-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #e3e3e3;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.submit-btn {
+  background-color: #4a90e2;
+  border: none;
+  color: white;
+}
+
+.submit-btn:hover {
+  background-color: #3a80d2;
+}
+
+.submit-btn:disabled {
+  background-color: #2a5a8f;
+  cursor: default;
+  opacity: 0.7;
+}
+
 /* Media queries para responsividad */
 @media (max-width: 900px) {
   .album-content {
@@ -515,5 +977,23 @@
   .streaming-link span,
   .track-item {
     font-size: 16px;
+  }
+}
+
+/* Ajustes para dispositivos móviles */
+@media (max-width: 1200px) {
+  .album-content {
+    grid-template-columns: 1fr;
+  }
+
+  .album-left,
+  .album-center,
+  .album-interaction-side {
+    grid-column: 1;
+  }
+
+  .album-interaction-panel {
+    position: static;
+    margin: 20px 0;
   }
 }

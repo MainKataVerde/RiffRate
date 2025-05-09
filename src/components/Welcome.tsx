@@ -16,8 +16,7 @@ interface User {
   nombre: string;
   username: string;
   photo: string;
-  reviewCount?: number;
-  listenCount?: number;
+  reviews: string[];
 }
 
 const Welcome = () => {
@@ -108,8 +107,8 @@ const Welcome = () => {
               <p className="user-name">{user.nombre || user.username}</p>
               <p className="user-stat">
                 {type === "listeners"
-                  ? `${user.listenCount || 0} escuchas`
-                  : `${user.reviewCount || 0} reviews`}
+                  ? `${user.reviews.length || 0} escuchas`
+                  : ``}
               </p>
             </div>
           </div>

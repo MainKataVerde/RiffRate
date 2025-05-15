@@ -18,6 +18,8 @@ const getAlbumReviewByUserId = require("./getAlbumReviewByUserId");
 const addToLikes = require("./addToLikes");
 const checkUserLiked = require("./checkUserLiked");
 const deleteFromLikes = require("./deleteFromLikes");
+const addToListenList = require("./addToListenList");
+const checkUserListenList = require("./checkUserListenList");
 
 module.exports = {
   getUserById,
@@ -40,4 +42,6 @@ module.exports = {
   addToLikes,
   checkUserLiked,
   deleteFromLikes,
+  addToListenList,
+  checkUserListenList,
 };

@@ -59,6 +59,15 @@ const createUpdateReview = async (req, res) => {
 
     // Añadir referencia de la nueva review al usuario
     usuario.reviews.push(savedReview._id);
+
+    // Eliminar el álbum de la listenList si está presente
+    if (usuario.listenList && usuario.listenList.includes(albumId)) {
+      usuario.listenList = usuario.listenList.filter((id) => id !== albumId);
+      console.log(
+        `Álbum ${albumId} eliminado de la listenList del usuario ${userId}`
+      );
+    }
+
     await usuario.save();
 
     // Añadir referencia de la nueva review al álbum

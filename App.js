@@ -14,6 +14,7 @@ app.post("/login", controllers.login);
 app.post("/reviews/create", controllers.createUpdateReview);
 app.post("/likes/add", controllers.addToLikes);
 app.post("/likes/remove", controllers.deleteFromLikes);
+app.post("/listenlist/add", controllers.addToListenList);
 
 //gets
 app.get("/user/:userId", controllers.getUserById);
@@ -31,6 +32,10 @@ app.get("/user/:userId/reviews", controllers.getUserReviewsList);
 app.get(
   "/user/:userId/album/:albumId/hasReview",
   controllers.checkUserAlbumReview
+);
+app.get(
+  "/user/:userId/album/:albumId/inListenList",
+  controllers.checkUserListenList
 );
 app.get(
   "/user/:userId/album/:albumId/review",

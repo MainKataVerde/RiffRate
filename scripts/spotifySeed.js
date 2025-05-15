@@ -109,7 +109,7 @@ async function fetchArtistAndAlbums(artistName, token) {
     });
 
     const albumsRes = await axios.get(
-      `https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album&limit=5`,
+      `https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single,ep`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 

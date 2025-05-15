@@ -64,7 +64,7 @@ const Header = ({ loggedUserId }: HeaderProps) => {
             style={{ transition: "width 0.3s, opacity 0.3s" }}
           />
         </div>
-        <a href="/albums">Albums</a>
+        <a href="/albums/popularity">Albums</a>
         <a href="/listas">Listas</a>
         <a href="/amigos">Amigos</a>
         <a href="/noticias">Noticias</a>

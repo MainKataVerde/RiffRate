@@ -26,7 +26,7 @@ const Welcome = () => {
   const [topReviewers, setTopReviewers] = useState<User[]>([]);
   const [nombre, setNombre] = useState("");
   const [hasFriends, setHasFriends] = useState(false);
-  const [showListeners, setShowListeners] = useState(true); // Nuevo estado para alternar
+  const [showListeners] = useState(true); // Nuevo estado para alternar
   const loggedUserId = localStorage.getItem("userId");
 
   const navigate = useNavigate();
@@ -92,7 +92,7 @@ const Welcome = () => {
   const renderUsers = (users: User[], type: "listeners" | "reviewers") => {
     return (
       <div className="albumContent user-content">
-        {users.slice(0, 10).map((user) => (
+        {users.slice(0, 6).map((user) => (
           <div className="user-item" key={user._id}>
             <div
               className="user-avatar"
@@ -130,7 +130,7 @@ const Welcome = () => {
               {loggedUserId ? (
                 <h1>
                   Hola {""}
-                  <b>{nombre}</b> ,¿que vamos a escuchar hoy ?
+                  <b>{nombre}</b> ,¿que vamos a escuchar hoy?
                 </h1>
               ) : (
                 <h1>
@@ -154,7 +154,7 @@ const Welcome = () => {
             {/* Sección de álbumes populares con scroll visible */}
             <div className="albumes">
               <div className="albumContent">
-                {albums.slice(0, 10).map((album) => (
+                {albums.slice(0, 6).map((album) => (
                   <div className="album" key={album._id}>
                     <img
                       src={album.cover || "https://via.placeholder.com/220"}
@@ -191,7 +191,7 @@ const Welcome = () => {
               {shouldShowFriendsAlbums ? (
                 // Mostrar álbumes de amigos
                 <div className="albumContent">
-                  {friendsAlbums.slice(0, 10).map((album) => (
+                  {friendsAlbums.slice(0, 6).map((album) => (
                     <div className="album" key={album._id}>
                       <img
                         src={album.cover || "https://via.placeholder.com/220"}
@@ -209,6 +209,16 @@ const Welcome = () => {
                 )
               )}
             </div>
+            <div className="populares-header">
+              <h2>Reviews</h2>
+              <span
+                className="arrow"
+                onClick={() => navigate(`/albums/popularity`)}
+              >
+                {">"}
+              </span>
+            </div>
+            <hr className="populares-divider" />
           </div>
         </div>
       </div>

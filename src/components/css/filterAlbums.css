@@ -51,6 +51,7 @@
   padding: 1.5rem;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 80%;
 }
 
 .filter-group {
@@ -71,7 +72,7 @@
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  color: black;
   cursor: pointer;
   font-size: 1rem;
 }
@@ -167,6 +168,9 @@
   flex-direction: column;
   gap: 0.4rem;
   flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .album-title {
@@ -174,12 +178,14 @@
   font-weight: bold;
   margin: 0;
   color: white;
+  text-align: center;
 }
 
 .album-artist {
   font-size: 1rem;
   color: #aaa;
   margin: 0;
+  text-align: center;
 }
 
 .album-year {
@@ -191,7 +197,8 @@
 .album-rating {
   margin-top: auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  width: 100%;
   gap: 0.5rem;
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSX } from "react";
 import Header from "./Header";
 import { useParams, useNavigate } from "react-router-dom";
 import "./css/album.css";
@@ -65,7 +65,15 @@ const Album = () => {
   const [ratingError, setRatingError] = useState<string | null>(null);
   const [albumViewed, setAlbumViewed] = useState<boolean>(false);
   const [albumLiked, setAlbumLiked] = useState<boolean>(false);
-  const [favoriteTrack, setFavoriteTrack] = useState<string>(""); // Nuevo estado para track favorito
+  const [favoriteTrack, setFavoriteTrack] = useState<string>("");
+  const [inListenList, setInListenList] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<"producers" | "label" | "genre">(
+    "producers"
+  );
+  const [selectedProducer, setSelectedProducer] = useState<string | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [barHeights, setBarHeights] = useState<number[]>([]);
 
   // Estados para el diálogo de reseña
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -174,6 +182,20 @@ const Album = () => {
       );
 
       if (response.data.success) {
+        // Si el álbum estaba en ListenList, quitarlo automáticamente
+        if (inListenList) {
+          try {
+            await axios.post("http://localhost:4000/listenlist/remove", {
+              userId: loggedUserId,
+              albumId: id,
+            });
+            // Actualizar el estado visual inmediatamente
+            setInListenList(false);
+          } catch (error) {
+            console.error("Error al quitar de ListenList:", error);
+          }
+        }
+
         // Cerrar diálogo y limpiar texto
         setReviewDialogOpen(false);
         setReviewText("");
@@ -218,6 +240,21 @@ const Album = () => {
         // Revertir el cambio visual ya que no se pudo completar la acción
         setAlbumViewed(albumViewed);
         return;
+      }
+
+      // Si está marcando como visto Y el álbum está en ListenList, quitarlo de allí
+      if (!albumViewed && inListenList) {
+        try {
+          await axios.post("http://localhost:4000/listenlist/remove", {
+            userId: loggedUserId,
+            albumId: id,
+          });
+          // Actualizar el estado visual inmediatamente
+          setInListenList(false);
+        } catch (listenListErr) {
+          console.error("Error al quitar de ListenList:", listenListErr);
+          // No revertimos el estado visto aunque falle quitar de ListenList
+        }
       }
 
       // Datos completos para enviar al servidor
@@ -299,6 +336,52 @@ const Album = () => {
     }
   };
 
+  // Función para manejar la adición/eliminación del ListenList
+  const handleListenListClick = async () => {
+    // Cambiar el estado visual inmediatamente para feedback
+    setInListenList(!inListenList);
+
+    try {
+      // Verificar si el usuario está logueado
+      if (!loggedUserId) {
+        navigate("/login", {
+          state: {
+            returnUrl: `/album/${id}`,
+            message: "Inicia sesión para añadir álbumes a tu ListenList",
+          },
+        });
+        // Revertir el cambio visual ya que no se pudo completar la acción
+        setInListenList(inListenList);
+        return;
+      }
+
+      // Datos para enviar al servidor
+      const listenListData = {
+        userId: loggedUserId,
+        albumId: id,
+      };
+
+      // Endpoint para añadir o eliminar de ListenList
+      const endpoint = inListenList
+        ? "http://localhost:4000/listenlist/remove"
+        : "http://localhost:4000/listenlist/add";
+
+      // Enviar la solicitud al servidor
+      const response = await axios.post(endpoint, listenListData);
+
+      console.log("Respuesta del servidor:", response.data);
+
+      if (!response.data.success) {
+        // Si hay error, revertir el cambio visual
+        setInListenList(inListenList);
+      }
+    } catch (error) {
+      // Revertir cambio en caso de error
+      setInListenList(inListenList);
+      console.error("Error al conectar con el servidor:", error);
+    }
+  };
+
   // Función para eliminar etiquetas HTML del texto
   const stripHtml = (html: string) => {
     return html.replace(/<[^>]*>?/gm, "");
@@ -316,6 +399,34 @@ const Album = () => {
     }
   };
 
+  // Añadir esta función de inicialización después de renderAverageStars
+  const generateBarHeights = (averageRating: number = 0) => {
+    try {
+      // Asegurar que averageRating es un número válido
+      const safeRating = isNaN(averageRating) ? 0 : averageRating;
+      const heights: number[] = [];
+
+      for (let i = 1; i <= 10; i++) {
+        const position10Scale = i / 2; // Convertir posición 1-10 a escala 0.5-5
+        const distance = Math.abs(position10Scale - safeRating);
+        const baseHeight = Math.max(5, 100 - distance * 25);
+
+        // Añadir algo de aleatoriedad pero solo UNA vez
+        const height = Math.min(
+          100,
+          Math.max(5, baseHeight + (Math.random() * 20 - 10))
+        );
+        heights.push(height);
+      }
+
+      return heights;
+    } catch (error) {
+      console.error("Error generando alturas de barras:", error);
+      // Retornar valores predeterminados en caso de error
+      return [20, 30, 40, 50, 60, 70, 60, 50, 40, 30];
+    }
+  };
+
   useEffect(() => {
     const fetchAlbumData = async () => {
       try {
@@ -326,12 +437,31 @@ const Album = () => {
           return;
         }
 
-        const res = await axios.get(`http://localhost:4000/album/${id}`);
+        // Mejora: añadir manejo de errores más detallado y capturar respuesta HTTP
+        const res = await axios
+          .get(`http://localhost:4000/album/${id}`)
+          .catch((err) => {
+            console.error("Error detallado en petición:", err.response || err);
+            throw new Error(`Error en petición: ${err.message}`);
+          });
 
         if (res.data.success) {
           const albumData = res.data.album;
-          console.log("Album links:", albumData.links);
+          console.log("Album data recibida:", albumData);
+
+          // Comprobación de datos antes de usarlos
+          if (!albumData) {
+            throw new Error("Datos de álbum vacíos o inválidos");
+          }
+
           setAlbum(albumData);
+
+          // Solo generar barHeights si tenemos un rating válido
+          if (typeof albumData.averageRating === "number") {
+            setBarHeights(generateBarHeights(albumData.averageRating));
+          } else {
+            setBarHeights(generateBarHeights(0)); // Valor predeterminado
+          }
 
           // Cargar datos del artista una vez que tengamos el nombre
           if (albumData && albumData.artist) {
@@ -422,6 +552,19 @@ const Album = () => {
               console.error("Error al verificar like del álbum:", likeErr);
             }
 
+            // Verificar si el álbum está en la ListenList del usuario
+            try {
+              const listenListRes = await axios.get(
+                `http://localhost:4000/user/${loggedUserId}/album/${id}/inListenList`
+              );
+
+              if (listenListRes.data.success) {
+                setInListenList(listenListRes.data.isInListenList);
+              }
+            } catch (listenListErr) {
+              console.error("Error al verificar ListenList:", listenListErr);
+            }
+
             try {
               const friendsRes = await axios.get(
                 `http://localhost:4000/album/${id}/reviews/friends/${loggedUserId}`
@@ -458,11 +601,19 @@ const Album = () => {
             console.error("Error al cargar álbumes similares:", err);
           }
         } else {
-          setError("No se pudo cargar el álbum");
+          // Mejorar el mensaje de error con detalles
+          setError(
+            `No se pudo cargar el álbum: ${
+              res.data.message || "Error desconocido"
+            }`
+          );
         }
       } catch (err) {
-        console.error("Error al cargar el álbum:", err);
-        setError("Error al cargar el álbum");
+        // Capturar más detalles del error
+        const errorMessage =
+          err instanceof Error ? err.message : "Error desconocido";
+        console.error("Error detallado al cargar el álbum:", err);
+        setError(`Error al cargar el álbum: ${errorMessage}`);
       } finally {
         setLoading(false);
       }
@@ -517,13 +668,13 @@ const Album = () => {
       if (i <= safeRating) {
         stars.push(
           <span key={i} className="star filled">
-            ★
+            ♪
           </span>
         );
       } else {
         stars.push(
           <span key={i} className="star">
-            ★
+            ♪
           </span>
         );
       }
@@ -534,6 +685,43 @@ const Album = () => {
   // Determinar si el array existe y tiene elementos
   const hasItems = (arr: any[] | undefined | null) => {
     return Array.isArray(arr) && arr.length > 0;
+  };
+
+  // Función para renderizar estrellas basadas en calificación media (no interactivas)
+  const renderAverageStars = (rating: number): JSX.Element[] => {
+    const stars: JSX.Element[] = [];
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 > 0.3;
+
+    // Añadir estrellas completas
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <span key={`full-${i}`} className="avg-star filled">
+          ♪
+        </span>
+      );
+    }
+
+    // Añadir media estrella si aplica
+    if (halfStar && stars.length < 5) {
+      stars.push(
+        <span key="half" className="avg-star half-filled">
+          ♪
+        </span>
+      );
+    }
+
+    // Añadir estrellas vacías
+    const emptyStars = 5 - stars.length;
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <span key={`empty-${i}`} className="avg-star">
+          ♪
+        </span>
+      );
+    }
+
+    return stars;
   };
 
   // Truncar descripción si es muy larga
@@ -758,20 +946,115 @@ const Album = () => {
             </div>
 
             {hasItems(album.producers) && (
-              <div className="album-producers">
-                <h3>Producers</h3>
-                <div className="producers-list">
-                  {album.producers.map((producer, index) => (
-                    <span
-                      key={index}
-                      className="producer-tag"
-                      onClick={() => navigateToProducer(producer)}
+              <>
+                <div className="album-info-tabs">
+                  <div className="tab-header">
+                    <button
+                      className={`tab-button ${
+                        activeTab === "producers" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        setActiveTab("producers");
+                        setSelectedLabel(null);
+                        setSelectedGenre(null);
+                      }}
                     >
-                      {producer}
-                    </span>
-                  ))}
+                      Producers
+                    </button>
+                    <button
+                      className={`tab-button ${
+                        activeTab === "label" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        setActiveTab("label");
+                        setSelectedProducer(null);
+                        setSelectedGenre(null);
+                      }}
+                    >
+                      Label
+                    </button>
+                    <button
+                      className={`tab-button ${
+                        activeTab === "genre" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        setActiveTab("genre");
+                        setSelectedProducer(null);
+                        setSelectedLabel(null);
+                      }}
+                    >
+                      Genero
+                    </button>
+                  </div>
+                  {activeTab === "producers" && (
+                    <div className="tab-content">
+                      <div className="tags-list">
+                        {album.producers.map((producer, index) => (
+                          <span
+                            key={index}
+                            className={`tag-item ${
+                              selectedProducer === producer
+                                ? "tag-selected"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              setSelectedProducer(
+                                producer === selectedProducer ? null : producer
+                              )
+                            }
+                          >
+                            {producer}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {activeTab === "label" && (
+                    <div className="tab-content">
+                      <div className="tags-list">
+                        {[album.label || "Independent"].map((label, index) => (
+                          <span
+                            key={index}
+                            className={`tag-item ${
+                              selectedLabel === label ? "tag-selected" : ""
+                            }`}
+                            onClick={() =>
+                              setSelectedLabel(
+                                label === selectedLabel ? null : label
+                              )
+                            }
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {activeTab === "genre" && (
+                    <div className="tab-content">
+                      <div className="tags-list">
+                        {(album.genres || ["Sin género especificado"]).map(
+                          (genre, index) => (
+                            <span
+                              key={index}
+                              className={`tag-item ${
+                                selectedGenre === genre ? "tag-selected" : ""
+                              }`}
+                              onClick={() =>
+                                setSelectedGenre(
+                                  genre === selectedGenre ? null : genre
+                                )
+                              }
+                            >
+                              {genre}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </>
             )}
 
             {hasItems(friendReviews) && (
@@ -918,118 +1201,171 @@ const Album = () => {
           {/* Panel de interacción (columna derecha) */}
           <div className="album-interaction-side">
             <div className="album-interaction-panel">
-              <div className="interaction-row">
-                <div
-                  className={`interaction-option ${
-                    albumViewed ? "active" : ""
-                  }`}
-                  onClick={handleViewedClick}
-                >
-                  <div className="interaction-icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="24px"
-                      viewBox="0 -960 960 960"
-                      width="24px"
-                      fill={albumViewed ? "#4a90e2" : "#e3e3e3"}
-                    >
-                      {albumViewed ? (
-                        <path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z" />
-                      ) : (
-                        <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
-                      )}
-                    </svg>
-                  </div>
-                  <span>Visto</span>
-                </div>
-
-                {/* Nuevo botón Like */}
-                <div
-                  className={`interaction-option ${albumLiked ? "active" : ""}`}
-                  onClick={handleLikeClick}
-                >
-                  <div className="interaction-icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="24px"
-                      viewBox="0 0 24 24"
-                      width="24px"
-                      fill={albumLiked ? "#ff4081" : "#e3e3e3"}
-                    >
-                      {albumLiked ? (
-                        // Corazón lleno para álbum ya likeado
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                      ) : (
-                        // Corazón vacío para álbum no likeado
-                        <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z" />
-                      )}
-                    </svg>
-                  </div>
-                  <span style={{ color: albumLiked ? "#ff4081" : "" }}>
-                    Like
-                  </span>
-                </div>
-
-                <div className="interaction-option">
-                  <div className="interaction-icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="24px"
-                      viewBox="0 -960 960 960"
-                      width="24px"
-                      fill="#e3e3e3"
-                    >
-                      <path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z" />
-                    </svg>
-                  </div>
-                  <span>Listenlist</span>
-                </div>
-              </div>
-
-              <div className="interaction-divider"></div>
-
-              <div className="interaction-rate">
-                <span>
-                  Rate
-                  {ratingError && (
-                    <small className="rating-error"> {ratingError}</small>
-                  )}
-                </span>
-                <div className="rate-icons">
-                  {[1, 2, 3, 4, 5].map((star) => (
+              {loggedUserId ? (
+                <>
+                  {/* Opciones para usuarios logueados */}
+                  <div className="interaction-row">
                     <div
-                      key={star}
-                      className={`rate-icon ${
-                        star <= userRating ? "rated" : ""
+                      className={`interaction-option ${
+                        albumViewed ? "active" : ""
                       }`}
-                      onClick={() => handleRateClick(star)}
+                      onClick={handleViewedClick}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="36px"
-                        viewBox="0 -960 960 960"
-                        width="36px"
-                        fill={star <= userRating ? "#ffd700" : "#e3e3e3"}
-                      >
-                        <path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z" />
-                      </svg>
+                      <div className="interaction-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          height="24px"
+                          viewBox="0 -960 960 960"
+                          width="24px"
+                          fill={albumViewed ? "#4a90e2" : "#e3e3e3"}
+                        >
+                          {albumViewed ? (
+                            <path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z" />
+                          ) : (
+                            <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
+                          )}
+                        </svg>
+                      </div>
+                      <span>Visto</span>
                     </div>
-                  ))}
+
+                    {/* Botón Like */}
+                    <div
+                      className={`interaction-option ${
+                        albumLiked ? "active" : ""
+                      }`}
+                      onClick={handleLikeClick}
+                    >
+                      <div className="interaction-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          height="24px"
+                          viewBox="0 0 24 24"
+                          width="24px"
+                          fill={albumLiked ? "#ff4081" : "#e3e3e3"}
+                        >
+                          {albumLiked ? (
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                          ) : (
+                            <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z" />
+                          )}
+                        </svg>
+                      </div>
+                      <span style={{ color: albumLiked ? "#ff4081" : "" }}>
+                        Like
+                      </span>
+                    </div>
+
+                    {/* Botón ListenList */}
+                    <div
+                      className={`interaction-option ${
+                        inListenList ? "active" : ""
+                      }`}
+                      onClick={handleListenListClick}
+                    >
+                      <div className="interaction-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          height="24px"
+                          viewBox="0 -960 960 960"
+                          width="24px"
+                          fill={inListenList ? "#4a90e2" : "#e3e3e3"}
+                        >
+                          <path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z" />
+                        </svg>
+                      </div>
+                      <span style={{ color: inListenList ? "#4a90e2" : "" }}>
+                        Listenlist
+                      </span>
+                    </div>
+                  </div>
+                  <div className="interaction-divider"></div>
+                  <div className="interaction-rate">
+                    <span>
+                      Rate
+                      {ratingError && (
+                        <small className="rating-error"> {ratingError}</small>
+                      )}
+                    </span>
+
+                    <div className="rate-icons">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <div
+                          key={star}
+                          className={`rate-icon ${
+                            star <= userRating ? "rated" : ""
+                          }`}
+                          onClick={() => handleRateClick(star)}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="36px"
+                            viewBox="0 -960 960 960"
+                            width="36px"
+                            fill={star <= userRating ? "#ffd700" : "#e3e3e3"}
+                          >
+                            <path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z" />
+                          </svg>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="interaction-divider"></div>
+                  <div
+                    className="interaction-button"
+                    onClick={() => setReviewDialogOpen(true)}
+                  >
+                    Hacer Review
+                  </div>
+                  <div className="interaction-divider"></div>
+                  <div className="interaction-button">Añadir a una lista</div>
+                </>
+              ) : (
+                /* Botón de login único para usuarios no logueados */
+                <div
+                  className="login-panel-button"
+                  onClick={() =>
+                    navigate("/login", {
+                      state: {
+                        returnUrl: `/album/${id}`,
+                        message:
+                          "Inicia sesión para interactuar con este álbum",
+                      },
+                    })
+                  }
+                >
+                  Iniciar sesión para interactuar
+                </div>
+              )}
+            </div>
+
+            <div className="album-rating-stats">
+              <div className="rating-stats-header">
+                <div className="rating-label">RATINGS</div>
+                <div className="fans-count">{album.totalRatings || 0} FANS</div>
+              </div>
+              <div className="rating-stats-content">
+                <div className="rating-histogram">
+                  {/* Barras del histograma */}
+                  <div className="rating-bars">
+                    {barHeights.map((height, index) => (
+                      <div
+                        key={index}
+                        className="rating-bar"
+                        style={{ height: `${height}%` }}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+                <div className="average-rating">
+                  <div className="rating-number">
+                    {(album.averageRating || 0).toFixed(1)}
+                  </div>
+                  <div className="rating-stars">
+                    {renderAverageStars(album.averageRating || 0)}
+                  </div>
                 </div>
               </div>
-
-              <div className="interaction-divider"></div>
-
-              <div
-                className="interaction-button"
-                onClick={() => setReviewDialogOpen(true)}
-              >
-                Hacer Review
-              </div>
-
-              <div className="interaction-divider"></div>
-
-              <div className="interaction-button">Añadir a una lista</div>
             </div>
           </div>
         </div>
@@ -1113,6 +1449,7 @@ const Album = () => {
             <div className="review-text-section">
               <textarea
                 placeholder="Escribe tu reseña aquí..."
+                value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 rows={6}
                 className="review-textarea"

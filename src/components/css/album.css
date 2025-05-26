@@ -32,10 +32,16 @@
 /* Columna izquierda */
 .album-left {
   grid-column: 1;
+  position: sticky;
+  top: 70px;
+  align-self: start;
+  height: auto; /* Cambiado de calc(100vh - 90px) a auto */
+  overflow-y: visible; /* Cambiado de auto a visible */
+  padding-bottom: 20px; /* Añadir espacio abajo para mejor visualización */
 }
 
 .album-cover {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .album-cover img {
@@ -110,7 +116,7 @@
 .album-tracks {
   background-color: #00308f;
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible; /* Cambiado de hidden a visible */
   margin: 20px 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
@@ -129,6 +135,7 @@
   display: flex;
   flex-direction: column;
   background-color: #00308f;
+  max-height: none; /* Asegurar que no tenga altura máxima */
 }
 
 /* Corrección para track-item */
@@ -309,8 +316,9 @@
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
   width: 100%;
-  position: sticky;
-  top: 20px; /* Mantiene el panel visible mientras scrolleas */
+  position: static;
+  top: 20px;
+  z-index: 1;
 }
 
 .interaction-row {
@@ -357,12 +365,101 @@
   color: #e3e3e3;
 }
 
-.interaction-option.active span {
-  color: #4a90e2;
+.interaction-option.active {
+  opacity: 1;
+  transform: scale(1.05);
 }
 
-.interaction-option.active span[style*="color: #ff4081"] {
-  color: #ff4081 !important;
+.interaction-option.active .interaction-icon {
+  transform: scale(1.1);
+}
+
+.interaction-option.active span {
+  font-weight: bold;
+}
+
+.review-likes {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.review-likes:hover {
+  transform: scale(1.05);
+}
+
+/* Estilos para la sección de álbumes similares */
+.section-header.with-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-nav-icon {
+  font-size: 20px;
+  color: white;
+  background-color: #2c4374;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.section-nav-icon:hover {
+  background-color: #3a5795;
+}
+
+.similar-albums-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.similar-album-card {
+  cursor: pointer;
+  transition: transform 0.2s;
+  overflow: hidden;
+}
+
+.similar-album-card:hover {
+  transform: translateY(-5px);
+}
+
+.similar-album-cover {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.similar-album-info {
+  margin-top: 8px;
+}
+
+.similar-album-name {
+  font-weight: bold;
+  font-size: 14px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.similar-album-artist {
+  font-size: 12px;
+  margin: 4px 0 0 0;
+  color: #a0a0a0;
+}
+
+/* Ajuste para responsive */
+@media (max-width: 768px) {
+  .similar-albums-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @keyframes heart-beat {
@@ -550,6 +647,12 @@
   margin: 0;
 }
 
+.section-headerh3 {
+  font-size: 20px;
+  margin: 0;
+  color: #002366;
+}
+
 .view-all {
   font-size: 24px;
   cursor: pointer;
@@ -558,8 +661,10 @@
 
 .section-divider {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
   margin: 10px 0;
+  background-color: #19386b;
+  opacity: 0.2;
+  height: 4px;
 }
 
 /* Reseñas */
@@ -660,14 +765,6 @@
 .favorite-track-select option:checked {
   box-shadow: none;
   border: none;
-}
-
-/* Albumes similares */
-.similar-albums-container {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 10px 0;
 }
 
 .similar-album-item {
@@ -784,6 +881,122 @@
   text-align: center; /* Centrar todo el texto por defecto */
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.view-all {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+  color: #4a90e2;
+}
+
+.section-divider {
+  border: 0;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 10px 0;
+}
+
+.reviews-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.review-item-card {
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  color: white;
+}
+
+.review-header-row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.review-item-card {
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.review-profile-section {
+  display: flex;
+  align-items: flex-start;
+}
+
+.review-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 12px;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+}
+
+.review-user-content {
+  flex-grow: 1;
+}
+
+.review-username {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #00215e;
+}
+
+.review-text {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.review-likes-footer {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.like-heart-icon {
+  margin-right: 5px;
+}
+
+.likes-count {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Asegurar que los contenedores de reviews tengan el espaciado correcto */
+.reviews-container {
+  margin-top: 15px;
+}
+
+.section-header {
+  margin-bottom: 0;
+}
+
+.section-divider {
+  border: none;
+  height: 2px;
+  background-color: #00215e;
+  margin: 10px 0 15px 0;
+}
+
 @keyframes dialog-slide-in {
   from {
     transform: translateY(20px);
@@ -881,6 +1094,12 @@
 
 .review-text-section {
   margin-bottom: 20px;
+}
+
+.review-text {
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
 }
 
 .review-textarea {
@@ -1117,6 +1336,44 @@
   margin-bottom: 8px;
 }
 
+.users-horizontal-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+  margin: 10px 0;
+}
+
+.user-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 60px;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-size: 12px;
+  margin-top: 5px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.user-item:hover .user-avatar {
+  transform: scale(1.05);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1174,6 +1431,8 @@
   padding: 10px;
   margin-top: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
 }
 
 .rating-stats-header {
@@ -1247,14 +1506,32 @@
   color: rgba(255, 255, 255, 0.3);
 }
 
-.avg-star.half-filled:before {
-  content: "★";
+.star.half-filled,
+.music-note-icon.half-filled {
+  position: relative;
+  color: yellow;
+  opacity: 0.6;
+}
+
+.music-note-icon.half-filled {
+  position: relative;
+  color: white; /* color base (gris) */
+  display: inline-block;
+  /* NO pongas opacity aquí */
+}
+
+.music-note-icon.half-filled::before {
+  content: "♪";
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
   width: 50%;
   overflow: hidden;
-  color: #4a90e2;
+  color: yellow; /* dorado */
+  z-index: 1;
+  font-size: inherit;
+  height: 100%;
+  pointer-events: none;
 }
 
 /* Ajustes para dispositivos móviles */
@@ -1267,10 +1544,18 @@
   .album-center,
   .album-interaction-side {
     grid-column: 1;
+    position: relative;
+    z-index: 1;
   }
 
   .album-interaction-panel {
     position: static;
     margin: 20px 0;
+  }
+  .album-left {
+    position: relative; /* Vuelve a position relative en móviles */
+    top: auto;
+    height: auto;
+    overflow-y: visible;
   }
 }

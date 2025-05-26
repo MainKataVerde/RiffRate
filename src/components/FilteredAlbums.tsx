@@ -274,7 +274,7 @@ const FilteredAlbums = ({ friendsOnly = false }: FilteredAlbumsProps) => {
     const halfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push("★");
+      stars.push("♪");
     }
 
     if (halfStar) {
@@ -283,7 +283,7 @@ const FilteredAlbums = ({ friendsOnly = false }: FilteredAlbumsProps) => {
 
     const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
-      stars.push("☆");
+      stars.push(" ");
     }
 
     return <div className="stars">{stars.join("")}</div>;

@@ -66,7 +66,7 @@ const Header = ({ loggedUserId }: HeaderProps) => {
         </div>
         <a href="/albums/popularity">Albums</a>
         <a href="/listas">Listas</a>
-        <a href="/amigos">Amigos</a>
+        <a href={`/user/${loggedUserId}/friends`}>Amigos</a>
         <a href="/noticias">Noticias</a>
       </div>
       <div className="profile">

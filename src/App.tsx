@@ -6,6 +6,9 @@ import User from "./components/User.tsx";
 import Album from "./components/Album.tsx";
 import Search from "./components/Search.tsx";
 import FilteredAlbums from "./components/FilteredAlbums.tsx";
+import Artist from "./components/Artist.tsx";
+import Friends from "./components/Friends.tsx";
+
 import "./components/template.css";
 import "./App.css";
 
@@ -21,6 +24,8 @@ const App = () => {
           <Route path="/album/:id" element={<Album />} />
           <Route path="/search/:query" element={<Search />} />
           <Route path="/albums/:filter" element={<FilteredAlbums />} />
+          <Route path="/artist/:id" element={<Artist />} />
+          <Route path="/user/:userId/friends" element={<Friends />} />
         </Routes>
       </div>
     </BrowserRouter>

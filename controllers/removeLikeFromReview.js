@@ -2,11 +2,11 @@ const Review = require("../model/reviews");
 const Usuario = require("../model/usuario");
 
 /**
- * Añade un like a una reseña (añade el ID del usuario al array de likes)
+ * Elimina un like de una reseña (quita el ID del usuario del array de likes)
  * @param {Request} req - Objeto de solicitud Express
  * @param {Response} res - Objeto de respuesta Express
  */
-const addLikeToReview = async (req, res) => {
+const removeLikeFromReview = async (req, res) => {
   try {
     const { userId, reviewId } = req.body;
 
@@ -36,21 +36,19 @@ const addLikeToReview = async (req, res) => {
       });
     }
 
-    // Verificar si el usuario ya ha dado like a esta reseña
-    if (review.likes.some((id) => String(id) === String(userId))) {
+    // Verificar si el usuario ha dado like a esta reseña
+    if (
+      !review.likes ||
+      !review.likes.some((id) => String(id) === String(userId))
+    ) {
       return res.status(400).json({
         success: false,
-        message: "El usuario ya ha dado like a esta reseña",
+        message: "El usuario no ha dado like a esta reseña",
       });
     }
 
-    // Inicializar el array de likes si no existe
-    if (!review.likes) {
-      review.likes = [];
-    }
-
-    // Añadir el ID del usuario al array de likes
-    review.likes.push(userId);
+    // Quitar el ID del usuario del array de likes
+    review.likes = review.likes.filter((id) => String(id) !== String(userId));
 
     // Actualizar el contador de likes para ordenamiento
     review.likesCount = review.likes.length;
@@ -60,12 +58,12 @@ const addLikeToReview = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Like añadido correctamente",
+      message: "Like eliminado correctamente",
       likesCount: review.likesCount,
       likes: review.likes,
     });
   } catch (error) {
-    console.error("Error al añadir like a reseña:", error);
+    console.error("Error al quitar like de reseña:", error);
     return res.status(500).json({
       success: false,
       message: "Error al procesar la solicitud",
@@ -74,4 +72,4 @@ const addLikeToReview = async (req, res) => {
   }
 };
 
-module.exports = addLikeToReview;
+module.exports = removeLikeFromReview;

@@ -1,8 +1,7 @@
 const Usuario = require("../model/usuario");
-const Album = require("../model/albumes");
 
 /**
- * Elimina un álbum de la lista de likes del usuario
+ * Elimina un álbum de la lista de "likes" del usuario
  * @param {Request} req - Objeto de solicitud Express
  * @param {Response} res - Objeto de respuesta Express
  */
@@ -10,54 +9,44 @@ const deleteFromLikes = async (req, res) => {
   try {
     const { userId, albumId } = req.body;
 
-    // Validación de datos básicos
     if (!userId || !albumId) {
       return res.status(400).json({
         success: false,
-        message: "Se requieren IDs de usuario y álbum",
+        message: "Se requieren el ID del usuario y del álbum",
       });
     }
 
-    // Verificar que el usuario existe
-    const usuario = await Usuario.findById(userId);
-    if (!usuario) {
+    // Buscar usuario
+    const user = await Usuario.findById(userId);
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "Usuario no encontrado",
       });
     }
 
-    // Verificar que el álbum existe
-    const album = await Album.findById(albumId);
-    if (!album) {
-      return res.status(404).json({
+    // Verificar si el álbum tiene like
+    if (!user.likes || !user.likes.includes(albumId)) {
+      return res.status(400).json({
         success: false,
-        message: "Álbum no encontrado",
+        message: "No has dado like a este álbum",
       });
     }
 
-    // Verificar si el álbum está en likes
-    if (!usuario.likes || !usuario.likes.includes(albumId)) {
-      return res.status(404).json({
-        success: false,
-        message: "El álbum no está en la lista de likes del usuario",
-      });
-    }
-
-    // Eliminar el ID del álbum del array de likes
-    usuario.likes = usuario.likes.filter((id) => id !== albumId);
-    await usuario.save();
+    // Eliminar álbum de likes
+    user.likes = user.likes.filter((id) => id !== albumId);
+    await user.save();
 
     return res.status(200).json({
       success: true,
-      message: "Álbum eliminado de likes correctamente",
-      likes: usuario.likes,
+      message: "Has quitado el like al álbum",
+      likes: user.likes,
     });
   } catch (error) {
-    console.error("Error al eliminar álbum de likes:", error);
+    console.error("Error al quitar like al álbum:", error);
     return res.status(500).json({
       success: false,
-      message: "Error al procesar la solicitud",
+      message: "Error al quitar like al álbum",
       error: error.message,
     });
   }

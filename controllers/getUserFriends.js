@@ -39,7 +39,7 @@ const getUserFriends = async (req, res) => {
     const friendsList = await Usuario.find({
       _id: { $in: usuario.friends },
     })
-      .select("name photo reviews likes listenList") // Seleccionar solo campos relevantes
+      .select("nombre photo reviews likes listenList") // Seleccionar solo campos relevantes
       .lean();
 
     return res.status(200).json({

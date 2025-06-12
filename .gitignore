@@ -1,4 +1,5 @@
-./scripts/.env
+.env
+**/.env
 # Logs
 logs
 *.log
@@ -23,3 +24,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Scripts directory
+scripts/
+scripts/db-backup/

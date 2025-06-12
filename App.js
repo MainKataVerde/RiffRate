@@ -16,6 +16,13 @@ app.post("/likes/add", controllers.addToLikes);
 app.post("/likes/remove", controllers.deleteFromLikes);
 app.post("/listenlist/add", controllers.addToListenList);
 app.post("/reviews/like/add", controllers.addLikeToReview);
+app.post("/user/:userId/unfollow", controllers.unfollowUser);
+app.post("/user/:userId/favorite/:albumId", controllers.addFavoriteAlbumDirect);
+app.post(
+  "/user/:userId/songs/favorites/remove",
+  controllers.removeFromFavoriteAlbum
+);
+app.post("/reviews/like/remove", controllers.removeLikeFromReview);
 
 //gets
 app.get("/user/:userId", controllers.getUserById);
@@ -54,9 +61,17 @@ app.get(
 );
 app.get("/album/:id/similar", controllers.getSimilarAlbums);
 app.get("/reviews/popular", controllers.getPopularReviews);
-app.get("/user/:userId/friends/reviews/popular", controllers.getFriendReviews);
 app.get("/artist/:artistId", controllers.getArtistById);
 app.get("/user/:userId/friends", controllers.getUserFriends);
+app.get("/review/:reviewId", controllers.getReviewById);
+app.get("/user/:userId/friends/reviews", controllers.getFriendReviews);
+app.get(
+  "/user/:userId/review/:reviewId/hasLiked",
+  controllers.checkUserReviewLike
+);
+
+//put
+app.put("/user/:userId", controllers.updateUserProfile);
 
 app.listen(4000, () => {
   console.log("Server is running on port 4000");

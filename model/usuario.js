@@ -11,11 +11,22 @@ const UsuarioSchema = new Schema({
     required: false,
     default: "/public/default_photo.jpg",
   },
+  photoPublicId: { type: String, required: false },
   bio: { type: String, required: false, default: "" },
   minutesListened: { type: Number, required: false, default: 0 },
   createdAt: { type: Date, required: true, default: Date.now },
   friends: { type: [String], required: false, default: [] },
-  favoriteAlbums: { type: [String], required: false, default: [] },
+  favoriteAlbums: {
+    type: [String],
+    required: false,
+    default: [],
+    validate: {
+      validator: function (array) {
+        return array.length <= 4;
+      },
+      message: "Solo puedes tener un máximo de 4 álbumes favoritos",
+    },
+  },
   lists: { type: [String], required: false, default: [] },
   likes: { type: [String], required: false, default: [] },
   listenList: { type: [String], required: false, default: [] },

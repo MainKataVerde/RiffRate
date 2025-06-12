@@ -29,6 +29,13 @@ const getFriendReviews = require("./getFriendReviews");
 const addLikeToReview = require("./addLikeToReview");
 const getArtistById = require("./getArtitsById");
 const getUserFriends = require("./getUserFriends");
+const getReviewById = require("./getReviewById");
+const updateUserProfile = require("./updateUserProfile");
+const unfollowUser = require("./unfollowUser");
+const addFavoriteAlbumDirect = require("./addToFavoriteDirect");
+const removeFromFavoriteAlbum = require("./removeFromFavoriteAlbums");
+const removeLikeFromReview = require("./removeLikeFromReview");
+const checkUserReviewLike = require("./checkUserReviewLike");
 
 module.exports = {
   getUserById,
@@ -62,4 +69,11 @@ module.exports = {
   addLikeToReview,
   getArtistById,
   getUserFriends,
+  getReviewById,
+  updateUserProfile,
+  unfollowUser,
+  addFavoriteAlbumDirect,
+  removeFromFavoriteAlbum,
+  removeLikeFromReview,
+  checkUserReviewLike,
 };

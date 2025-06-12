@@ -37,9 +37,6 @@ const Footer = () => {
             <li>
               <Link to="/faq">Preguntas Frecuentes</Link>
             </li>
-            <li>
-              <Link to="/editorial">Editorial</Link>
-            </li>
           </ul>
         </div>
 

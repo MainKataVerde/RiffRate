@@ -6,13 +6,15 @@ import "./css/album.css";
 import axios from "axios";
 import React from "react";
 
+// filepath: d:\riffrate\RiffRate\frontend\src\components\Album.tsx
 interface Review {
+  _id: string; // Añadir el ID de la reseña para las llamadas API
   userId: string;
   username: string;
   userPhoto: string;
   text: string;
   rating: number;
-  likes: number;
+  likes: string[];
   date: string;
   viewed: boolean;
   favoriteTrack?: string;
@@ -24,7 +26,6 @@ interface ArtistData {
   name: string;
   photo: string;
   bio: string;
-  followers: number;
   albums: string[];
 }
 
@@ -50,6 +51,7 @@ interface AlbumData {
 
 // Componente memoizado para una Review
 // Componente memoizado para una Review
+// Componente memoizado para una Review
 const ReviewItem = React.memo(
   ({
     review,
@@ -61,7 +63,96 @@ const ReviewItem = React.memo(
     renderStars: (rating: number) => JSX.Element[];
   }) => {
     const [reviewLiked, setReviewLiked] = React.useState(false);
+    const [likesCount, setLikesCount] = React.useState(
+      review.likes.length || 0
+    );
+    const loggedUserId = localStorage.getItem("userId");
 
+    // Verificar si el usuario ya dio like a esta reseña
+    // Dentro del componente ReviewItem en Album.tsx
+    // Dentro del componente ReviewItem en Album.tsx
+    React.useEffect(() => {
+      const checkUserLike = async () => {
+        if (!loggedUserId || !review._id) return;
+
+        try {
+          console.log(
+            `Verificando like para usuario ${loggedUserId} en reseña ${review._id}`
+          );
+          console.log("Review object:", JSON.stringify(review));
+
+          const response = await axios.get(
+            `http://localhost:4000/user/${loggedUserId}/review/${review._id}/hasLiked`
+          );
+
+          console.log(
+            "Respuesta completa de hasLiked:",
+            JSON.stringify(response.data)
+          );
+
+          if (response.data.success) {
+            setReviewLiked(response.data.hasLiked);
+          }
+        } catch (error) {
+          console.error("Error al verificar like:", error);
+        }
+      };
+
+      checkUserLike();
+    }, [loggedUserId, review._id]);
+
+    // Manejar el click en el botón de like
+    // Manejar el click en el botón de like
+    // Manejar el click en el botón de like
+    const handleLikeClick = async () => {
+      if (!loggedUserId) {
+        navigate("/login", {
+          state: {
+            returnUrl: window.location.pathname,
+            message: "Inicia sesión para dar like a reseñas",
+          },
+        });
+        return;
+      }
+
+      try {
+        // URL del endpoint según queramos dar o quitar like
+        const endpoint = reviewLiked
+          ? "http://localhost:4000/reviews/like/remove"
+          : "http://localhost:4000/reviews/like/add";
+
+        console.log(`Enviando solicitud a: ${endpoint}`);
+        console.log(
+          `Estado actual: ${reviewLiked ? "Quitando" : "Dando"} like`
+        );
+
+        // Feedback visual inmediato
+        const newLikedState = !reviewLiked;
+        const oldLikesCount = likesCount;
+
+        // Actualizar UI inmediatamente para feedback
+        setReviewLiked(newLikedState);
+        setLikesCount(
+          newLikedState ? oldLikesCount + 1 : Math.max(0, oldLikesCount - 1)
+        );
+
+        const response = await axios.post(endpoint, {
+          userId: loggedUserId,
+          reviewId: review._id,
+        });
+
+        if (response.data.success) {
+          // Actualizar con el valor real del servidor
+          setLikesCount(response.data.likesCount);
+        } else {
+          // Revertir cambios si hay error
+          setReviewLiked(!newLikedState);
+          setLikesCount(oldLikesCount);
+        }
+      } catch (error) {
+        console.error("Error al actualizar like:", error);
+      }
+    };
     return (
       <div className="review-item-card">
         <div className="review-profile-section">
@@ -84,16 +175,13 @@ const ReviewItem = React.memo(
               {review.text ||
                 "Lorem ipsum dolor sit amet consectetur adipiscing elit scelerisque, praesent euismod ac eu vivamus aliquet ante conubia, blandit vitae tempus mus rutrum dui porttitor."}
             </p>
-            <div
-              className="review-likes-footer"
-              onClick={() => setReviewLiked(!reviewLiked)}
-            >
+            <div className="review-likes-footer" onClick={handleLikeClick}>
               <svg
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
                 fill={reviewLiked ? "#ff4081" : "#ffffff"}
-                className="like-heart-icon"
+                className={`like-heart-icon ${reviewLiked ? "liked" : ""}`}
               >
                 <path
                   d={
@@ -103,7 +191,11 @@ const ReviewItem = React.memo(
                   }
                 />
               </svg>
-              <span className="likes-count">{review.likes || 0} LIKES</span>
+              <span
+                className={`likes-count ${reviewLiked ? "liked-text" : ""}`}
+              >
+                {`${likesCount} LIKES`}
+              </span>
             </div>
           </div>
         </div>
@@ -856,7 +948,6 @@ const Album = () => {
   if (error || !album) {
     return (
       <div>
-        <Header loggedUserId={loggedUserId} />
         <div className="album-error">
           <p>{error || "No se pudo cargar el álbum"}</p>
           <button onClick={() => navigate(-1)} className="back-button">
@@ -870,9 +961,7 @@ const Album = () => {
   return (
     <div className="app-container">
       {/* Sección 1: Header/Navegación */}
-      <div className="header-section">
-        <Header loggedUserId={loggedUserId} />
-      </div>
+      <div className="header-section"></div>
 
       {/* Sección 2: Contenido principal del álbum */}
       <div className="main-album-section">
@@ -1557,7 +1646,6 @@ const Album = () => {
             <div className="review-text-section">
               <textarea
                 placeholder="Escribe tu reseña aquí..."
-                value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 rows={6}
                 className="review-textarea"

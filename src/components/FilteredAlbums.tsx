@@ -291,7 +291,6 @@ const FilteredAlbums = ({ friendsOnly = false }: FilteredAlbumsProps) => {
 
   return (
     <div className="welcomeContainer">
-      <Header loggedUserId={loggedUserId} />
       <div className="cuerpo">
         <div className="cuerpoArriba">
           <div className="cuerpoArribaTexto">

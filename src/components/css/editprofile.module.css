@@ -1,0 +1,883 @@
+/* Estilos generales */
+.editProfileContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  color: #fff;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* Tabs de navegación */
+.tabsContainer {
+  display: flex;
+  border-bottom: 1px solid #2d2d3d;
+  margin-bottom: 24px;
+}
+
+.tabButton {
+  background: none;
+  border: none;
+  color: #adb5bd;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tabButton:hover {
+  color: #fff;
+}
+
+.activeTab {
+  color: #fff;
+  font-weight: 600;
+}
+
+.activeTab::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #1a73e8;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Estilos para el contador de favoritos */
+.favoritesCounter {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  background-color: #2c2c3c;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #3a3a4a;
+  color: #fff;
+  font-weight: 600;
+  margin-right: 12px;
+  transition: background-color 0.3s;
+}
+
+.counterFull {
+  background-color: #ea4335;
+}
+
+.counterLabel {
+  font-size: 14px;
+  color: #adb5bd;
+}
+
+.limitMessage {
+  display: flex;
+  align-items: center;
+  background-color: rgba(234, 67, 53, 0.1);
+  border: 1px solid rgba(234, 67, 53, 0.3);
+  color: #ea4335;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.limitMessage svg {
+  margin-right: 12px;
+  min-width: 24px;
+  color: #ea4335;
+}
+
+.limitMessage p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Estilos para títulos y contadores */
+.favoritesTitle {
+  display: flex;
+  align-items: center;
+}
+
+.favoritesCount {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #8d8d9d;
+  font-weight: normal;
+}
+
+/* Mejorar los botones de acción */
+.addButton:disabled {
+  background-color: #4d4d5c;
+  cursor: not-allowed;
+}
+
+/* Mejorar la visualización de los álbumes */
+.albumCard {
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.albumCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Formulario de perfil */
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.imageSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.imageContainer {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #2c2c3c;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.emptyAvatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #3a3a4a;
+  font-size: 48px;
+  font-weight: bold;
+  color: #8d8d9d;
+}
+
+.imageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.imageContainer:hover .imageOverlay {
+  opacity: 1;
+}
+
+.uploadButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+}
+
+.uploadButton svg {
+  margin-bottom: 5px;
+}
+
+.hiddenInput {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #adb5bd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.charCount {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.input,
+.textarea {
+  background-color: #2c2c3c;
+  border: 1px solid #3c3c4c;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+  outline: none;
+}
+
+.submitButton {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 200px;
+  align-self: flex-end;
+}
+
+.submitButton:hover {
+  background-color: #1565c0;
+}
+
+.submitButton:disabled {
+  background-color: #4d4d5c;
+  cursor: not-allowed;
+}
+
+/* Estilos para la gestión de favoritos */
+.favoritesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.searchContainer {
+  margin-bottom: 24px;
+}
+
+.searchInputContainer {
+  display: flex;
+  align-items: center;
+  background-color: #2c2c3c;
+  border: 1px solid #3c3c4c;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.searchInput:focus {
+  outline: none;
+}
+
+.searchButton {
+  background: none;
+  border: none;
+  color: #8d8d9d;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.searchButton:hover {
+  color: #fff;
+}
+
+.searchButton:disabled {
+  color: #4d4d5c;
+  cursor: not-allowed;
+}
+
+.searchResultsContainer,
+.currentFavoritesContainer {
+  margin-bottom: 32px;
+}
+
+.resultsTitle,
+.favoritesTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #adb5bd;
+}
+
+.albumsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.albumCard {
+  background-color: #2c2c3c;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.albumCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.albumImageContainer {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.albumImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.albumInfo {
+  padding: 12px;
+}
+
+.albumTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.albumArtist {
+  font-size: 14px;
+  color: #8d8d9d;
+  margin: 0 0 12px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.addButton,
+.removeButton {
+  width: 100%;
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addButton {
+  background-color: #34a853;
+  color: white;
+}
+
+.addButton:hover {
+  background-color: #2d9248;
+}
+
+.removeButton {
+  background-color: #ea4335;
+  color: white;
+}
+
+.removeButton:hover {
+  background-color: #d33426;
+}
+
+.noResults,
+.emptyMessage {
+  text-align: center;
+  color: #8d8d9d;
+  padding: 24px;
+  background-color: #2c2c3c;
+  border-radius: 8px;
+}
+
+/* Spinners */
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+.smallSpinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+/* Añadir estos estilos al final del archivo existente */
+
+/* Estilos para el recortador de imágenes */
+.cropperModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.cropperContainer {
+  background-color: #1e1e2d;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.cropperHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2d2d3d;
+}
+
+.cropperHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #8d8d9d;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #fff;
+}
+
+.cropperContent {
+  position: relative;
+  height: 300px;
+  background-color: #000;
+}
+
+.cropperControls {
+  padding: 16px 20px;
+  border-top: 1px solid #2d2d3d;
+}
+
+.zoomControl {
+  margin-bottom: 16px;
+}
+
+.zoomControl label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #adb5bd;
+}
+
+.zoomSlider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(
+    to right,
+    #1a73e8 0%,
+    #1a73e8 50%,
+    #3c3c4c 50%,
+    #3c3c4c 100%
+  );
+  outline: none;
+  border-radius: 3px;
+}
+
+.zoomSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2px solid #1a73e8;
+}
+
+.zoomSlider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2px solid #1a73e8;
+}
+
+.cropperActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancelButton,
+.applyButton {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton {
+  background: none;
+  border: 1px solid #3c3c4c;
+  color: #fff;
+}
+
+.cancelButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.applyButton {
+  background-color: #1a73e8;
+  border: none;
+  color: #fff;
+}
+
+.applyButton:hover {
+  background-color: #1565c0;
+}
+
+/* Añadir estos estilos al final del archivo */
+
+/* Estilos para el recortador de imágenes */
+.cropperModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.cropperContainer {
+  background-color: #1e1e2d;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.cropperHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2d2d3d;
+}
+
+.cropperHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #8d8d9d;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #fff;
+}
+
+.cropperContent {
+  position: relative;
+  height: 300px;
+  background-color: #000;
+}
+
+.cropperControls {
+  padding: 16px 20px;
+  border-top: 1px solid #2d2d3d;
+}
+
+.zoomControl {
+  margin-bottom: 16px;
+}
+
+.zoomControl label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #adb5bd;
+}
+
+.zoomSlider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(
+    to right,
+    #1a73e8 0%,
+    #1a73e8 50%,
+    #3c3c4c 50%,
+    #3c3c4c 100%
+  );
+  outline: none;
+  border-radius: 3px;
+}
+
+.zoomSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2px solid #1a73e8;
+}
+
+.zoomSlider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2px solid #1a73e8;
+}
+
+.cropperActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancelButton,
+.applyButton {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton {
+  background: none;
+  border: 1px solid #3c3c4c;
+  color: #fff;
+}
+
+.cancelButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.applyButton {
+  background-color: #1a73e8;
+  border: none;
+  color: #fff;
+}
+
+.applyButton:hover {
+  background-color: #1565c0;
+}
+
+/* Contenedor del botón de volver */
+.backButtonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  padding: 0 0 15px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Estilo del botón de volver */
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Efecto hover para el botón */
+.backButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(-3px);
+}
+
+/* Estilo del icono SVG */
+.backButton svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+/* Animación en hover para el icono */
+.backButton:hover svg {
+  transform: translateX(-2px);
+}
+
+/* Estilo del texto */
+.backButton span {
+  line-height: 1;
+}
+
+/* Asegurarse que el botón tenga ancho adecuado */
+@media (max-width: 768px) {
+  .backButton {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Asegurarse de que el crop container tenga una buena altura en móviles */
+@media (max-width: 480px) {
+  .cropperContent {
+    height: 250px;
+  }
+
+  .cropperContainer {
+    max-height: 95vh;
+  }
+}
+
+/* Asegurarse de que el crop container tenga una buena altura en móviles */
+@media (max-width: 480px) {
+  .cropperContent {
+    height: 250px;
+  }
+
+  .cropperContainer {
+    max-height: 95vh;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .albumsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .albumsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .tabButton {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .submitButton {
+    max-width: 100%;
+  }
+}

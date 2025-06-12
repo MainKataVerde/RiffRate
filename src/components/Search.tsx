@@ -62,7 +62,6 @@ const Search = () => {
 
   return (
     <div className="welcomeContainer">
-      <Header loggedUserId={loggedUserId} />
       <div className="cuerpoSearch">
         <div className="cuerpoArriba">
           <div className="cuerpoArribaTexto">

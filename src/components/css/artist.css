@@ -24,11 +24,9 @@
   width: 80%;
 }
 
-.artist-header h1 {
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: #fff;
+.artist-header {
+  font-size: 30px;
+  background: none;
 }
 
 .artist-header h1 span {
@@ -238,6 +236,52 @@
   color: #8ba3d1;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
+}
+
+/* Estilos para los botones de seguimiento */
+.follow-button {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.follow-button:hover {
+  background-color: #1565c0;
+}
+
+.following-button {
+  background-color: #34a853; /* Verde para indicar que ya sigues */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.following-button:hover {
+  background-color: #276d38; /* Verde más oscuro al hover */
+}
+
+.unfollow-button {
+  background-color: #d93025; /* Rojo para dejar de seguir */
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 20%;
+}
+
+.unfollow-button:hover {
+  background-color: #b7271e;
 }
 
 /* Responsive */

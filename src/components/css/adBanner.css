@@ -1,11 +1,92 @@
 .ad-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100px;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  margin: 15px 0;
   overflow: hidden;
-  margin: 20px 0;
+  text-align: center;
+  min-height: 90px;
+}
+
+.ad-placeholder {
+  width: 100%;
+  margin: 15px 0;
+  padding: 15px;
+  color: #666;
+  text-align: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.ad-placeholder:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tamaños específicos para anuncios */
+.ad-container.ad-size-small,
+.ad-placeholder.ad-size-small {
+  min-height: 90px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ad-container.ad-size-medium,
+.ad-placeholder.ad-size-medium {
+  min-height: 250px;
+  max-width: 336px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ad-container.ad-size-large,
+.ad-placeholder.ad-size-large {
+  min-height: 280px;
+  max-width: 728px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ad-container.ad-size-leaderboard,
+.ad-placeholder.ad-size-leaderboard {
+  min-height: 90px;
+  max-width: 728px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ad-container.ad-size-skyscraper,
+.ad-placeholder.ad-size-skyscraper {
+  min-height: 600px;
+  width: 160px;
+  max-width: 200px;
+}
+
+.ad-container.ad-size-billboard,
+.ad-placeholder.ad-size-billboard {
+  min-height: 600px;
+  max-width: 970px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Estilos para anuncios en dispositivos móviles */
+@media (max-width: 768px) {
+  .ad-container.ad-size-large,
+  .ad-placeholder.ad-size-large,
+  .ad-container.ad-size-leaderboard,
+  .ad-placeholder.ad-size-leaderboard,
+  .ad-container.ad-size-billboard,
+  .ad-placeholder.ad-size-billboard {
+    min-height: 250px;
+    max-width: 336px;
+  }
+
+  .ad-container.ad-size-skyscraper,
+  .ad-placeholder.ad-size-skyscraper {
+    min-height: 250px;
+    width: 100%;
+    max-width: 336px;
+  }
 }

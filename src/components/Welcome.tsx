@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/welcome.css";
 import axios from "axios";
-import Header from "./Header";
 
 interface Album {
   _id: string;
@@ -349,7 +348,6 @@ const Welcome = () => {
   return (
     <>
       <div className="welcomeContainer">
-        <Header loggedUserId={loggedUserId} />
         <div className="cuerpo">
           <div className="cuerpoArriba">
             <div className="cuerpoArribaTexto">

@@ -6,17 +6,11 @@ import Header from "./Header";
 
 interface Friend {
   _id: string;
-  name: string;
+  nombre: string;
   photo: string;
   reviews?: number | any[];
   likes?: number | any[];
   listenList?: any[];
-}
-
-interface ApiResponse {
-  success: boolean;
-  count: number;
-  friends: Friend[];
 }
 
 const Friends = () => {
@@ -92,7 +86,7 @@ const Friends = () => {
         switch (sortBy) {
           case "name": {
             // Verificar que los objetos tienen la propiedad name
-            return (a.name || "").localeCompare(b.name || "");
+            return (a.nombre || "").localeCompare(b.nombre || "");
           }
           case "reviewsCount": {
             const reviewsA = Array.isArray(a.reviews)
@@ -137,8 +131,6 @@ const Friends = () => {
 
   return (
     <div className="friends-page">
-      <Header loggedUserId={loggedUserId} />
-
       <div className="friends-container">
         <header className="friends-header">
           <h1>MIS AMIGOS</h1>
@@ -178,11 +170,11 @@ const Friends = () => {
                           friend.photo ||
                           "https://via.placeholder.com/150?text=User"
                         }
-                        alt={friend.name}
+                        alt={friend.nombre}
                       />
                     </div>
                     <div className="friend-info">
-                      <h3>{friend.name}</h3>
+                      <h3>{friend.nombre}</h3>
                       <div className="friend-stats">
                         <div className="stat">
                           <span className="stat-value">
@@ -212,7 +204,7 @@ const Friends = () => {
                 <p>No tienes amigos agregados aún</p>
                 <button
                   className="add-friends-btn"
-                  onClick={() => navigate("/search/users")}
+                  onClick={() => navigate("/search/")}
                 >
                   Buscar amigos
                 </button>

@@ -1374,6 +1374,63 @@
   transform: scale(1.05);
 }
 
+/* Estilos para la sección de likes */
+.review-likes-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.review-likes-footer:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.like-heart-icon {
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+
+.like-heart-icon.liked {
+  transform: scale(1.2);
+}
+
+.review-likes-footer:hover .like-heart-icon {
+  transform: scale(1.1);
+}
+
+.likes-count {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #e3e3e3;
+  transition: color 0.2s ease;
+}
+
+.likes-count.liked-text {
+  color: #ff4081;
+}
+
+.review-likes-footer:hover .like-heart-icon.liked {
+  /* Efecto de vibración suave al pasar el mouse */
+  animation: heart-beat 0.6s infinite alternate;
+}
+
+.review-likes-footer:hover .likes-count.liked-text {
+  color: #ff2255; /* Rojo más intenso al pasar el mouse */
+}
+
+@keyframes heart-beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
